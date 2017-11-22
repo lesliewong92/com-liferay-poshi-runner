@@ -436,7 +436,8 @@ public class PoshiRunnerGetterUtil {
 		int x = classCommandName.indexOf("(");
 		int y = classCommandName.lastIndexOf(")");
 
-		String className = getClassNameFromClassCommandName(classCommandName);
+		String namespaceClassName = getNamespaceClassNameFromClassCommandName(
+			classCommandName);
 		String commandName = getCommandNameFromClassCommandName(
 			classCommandName);
 
@@ -472,17 +473,18 @@ public class PoshiRunnerGetterUtil {
 
 		Object returnObject = null;
 
-		if (className.equals("selenium")) {
+		if (namespaceClassName.equals("selenium")) {
 			Object object = SeleniumUtil.getSelenium();
 
 			returnObject = getMethodReturnValue(
-				args, className, commandName, object);
+				args, namespaceClassName, commandName, object);
 		}
 		else {
-			className = "com.liferay.poshi.runner.util." + className;
+			namespaceClassName =
+				"com.liferay.poshi.runner.util." + namespaceClassName;
 
 			returnObject = getMethodReturnValue(
-				args, className, commandName, null);
+				args, namespaceClassName, commandName, null);
 		}
 
 		return returnObject;
