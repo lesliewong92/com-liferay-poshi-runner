@@ -216,8 +216,33 @@ public class PoshiRunner {
 	private void _runClassCommandName(String classCommandName)
 		throws Exception {
 
-		Element rootElement = PoshiRunnerContext.getTestCaseRootElement(
-			_testClassName);
+		String className =
+			PoshiRunnerGetterUtil.getClassNameFromClassCommandName(
+				classCommandName);
+
+		String namespace =
+			PoshiRunnerGetterUtil.getNamespaceFromClassCommandName(
+				classCommandName);
+
+		String simpleClassCommandName =
+			PoshiRunnerGetterUtil.getSimpleClassCommandName(classCommandName);
+
+		Element commandElement;
+		Element rootElement;
+
+		if (Validator.isNotNull(namespace)) {
+			rootElement = PoshiRunnerContext.getTestCaseRootElement(
+				className, namespace);
+
+			commandElement = PoshiRunnerContext.getTestCaseCommandElement(
+				simpleClassCommandName, namespace);
+		}
+		else {
+			rootElement = PoshiRunnerContext.getTestCaseRootElement(className);
+
+			commandElement = PoshiRunnerContext.getTestCaseCommandElement(
+				simpleClassCommandName);
+		}
 
 		List<Element> varElements = rootElement.elements("var");
 
@@ -226,9 +251,6 @@ public class PoshiRunner {
 		}
 
 		PoshiRunnerVariablesUtil.pushCommandMap(true);
-
-		Element commandElement = PoshiRunnerContext.getTestCaseCommandElement(
-			classCommandName);
 
 		if (commandElement != null) {
 			PoshiRunnerStackTraceUtil.startStackTrace(
