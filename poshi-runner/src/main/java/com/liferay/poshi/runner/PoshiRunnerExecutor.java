@@ -946,7 +946,7 @@ public class PoshiRunnerExecutor {
 		PoshiRunnerStackTraceUtil.pushStackTrace(executeElement);
 
 		Element rootElement = PoshiRunnerContext.getTestCaseRootElement(
-			className);
+			className, PoshiRunnerContext.getDefaultNamespace());
 
 		List<Element> rootVarElements = rootElement.elements("var");
 
@@ -955,7 +955,7 @@ public class PoshiRunnerExecutor {
 		}
 
 		Element commandElement = PoshiRunnerContext.getTestCaseCommandElement(
-			classCommandName);
+			classCommandName, PoshiRunnerContext.getDefaultNamespace());
 
 		runTestCaseCommandElement(commandElement);
 
