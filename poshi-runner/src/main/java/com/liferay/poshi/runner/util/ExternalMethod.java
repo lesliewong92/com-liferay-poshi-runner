@@ -17,6 +17,8 @@ package com.liferay.poshi.runner.util;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import java.util.Objects;
+
 import org.openqa.selenium.StaleElementReferenceException;
 
 /**
@@ -110,23 +112,55 @@ public class ExternalMethod {
 			Class clazz, String methodName, Object[] parameters)
 		throws Exception {
 
-		Class<?>[] parameterTypes = _getTypes(parameters);
+		for (Method method : clazz.getMethods()) {
+			if (!methodName.equals(method.getName())) {
+				continue;
+			}
 
-		return clazz.getMethod(methodName, parameterTypes);
-	}
+			Class<?>[] parameterTypes = method.getParameterTypes();
 
-	private static Class<?>[] _getTypes(Object[] objects) {
-		if ((objects == null) || (objects.length == 0)) {
-			return new Class<?>[0];
+			boolean varArg = method.isVarArgs();
+
+			// if ((methodParameterTypes.length != parameters.length) &&
+			// 	!isVarArg) {
+
+			// 	continue;
+			// }
+
+			if (varArg) {
+				throw new RuntimeException(
+					"Unsupported feature variable arguments in reflection");
+			}
+
+			if (parameterTypes.length != parameters.length) {
+				continue;
+			}
+
+			boolean parameterTypesMatch = true;
+
+			for (int i = 0; i < parameterTypes.length; i++) {
+				Object parameter = parameters[i];
+
+				if (Objects.equals(parameter, "Poshi.NULL")) {
+					continue;
+				}
+
+				if (parameterTypes[i] != parameter.getClass()) {
+					parameterTypesMatch = false;
+
+					break;
+				}
+			}
+
+			if (parameterTypesMatch) {
+				return method;
+			}
 		}
 
-		Class<?>[] objectTypes = new Class<?>[objects.length];
+		throw new IllegalArgumentException(
+			"Unable to find method '" + methodName + "' of class '" +
+				clazz.getCanonicalName() + "'");
 
-		for (int i = 0; i < objects.length; i++) {
-			objectTypes[i] = objects[i].getClass();
-		}
-
-		return objectTypes;
 	}
 
 }
