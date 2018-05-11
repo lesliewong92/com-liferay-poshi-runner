@@ -128,8 +128,22 @@ public class ExternalMethod {
 			// }
 
 			if (varArg) {
-				throw new RuntimeException(
-					"Unsupported feature variable arguments in reflection");
+				if (parameterTypes.length == 1) {
+					Class<?> previousParameterType = null;
+
+					for (Object parameter : parameters) {
+						if (previousParameterType == null) {
+							previousParameterType = parameter.getClass();
+
+							continue;
+						}
+
+						if (previousParameterType != parameter.getClass()) {
+							throw new RuntimeException(
+								"Parameter types are not consistent");
+						}
+					}
+				}
 			}
 
 			if (parameterTypes.length != parameters.length) {
