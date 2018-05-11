@@ -14,9 +14,12 @@
 
 package com.liferay.poshi.runner.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.openqa.selenium.StaleElementReferenceException;
@@ -31,6 +34,8 @@ public class ExternalMethod {
 		throws Exception {
 
 		Object returnObject = null;
+
+		parameters = _transformParameters(method, parameters);
 
 		try {
 			returnObject = method.invoke(object, parameters);
@@ -130,10 +135,6 @@ public class ExternalMethod {
 			for (int i = 0; i < parameterTypes.length; i++) {
 				Object parameter = parameters[i];
 
-				if (Objects.equals(parameter, "Poshi.NULL")) {
-					continue;
-				}
-
 				if ((i == (parameterTypes.length - 1)) && varArgs) {
 					Class<?> varArgParameterType =
 						parameterTypes[i].getComponentType();
@@ -157,6 +158,10 @@ public class ExternalMethod {
 					}
 
 					break;
+				}
+
+				if (Objects.equals(parameter, "Poshi.NULL")) {
+					continue;
 				}
 
 				if (parameterTypes[i] != parameter.getClass()) {
@@ -185,6 +190,7 @@ public class ExternalMethod {
 				Class<?> parameterType = parameter.getClass();
 
 				sb.append(parameterType.toString());
+
 				sb.append(", ");
 			}
 
@@ -194,7 +200,52 @@ public class ExternalMethod {
 		}
 
 		throw new IllegalArgumentException(sb.toString());
+	}
 
+	private static Object[] _transformParameters(
+		Method method, Object[] parameters) {
+
+		List<Object> transformedParameters = new ArrayList<>();
+
+		Class<?>[] parameterTypes = method.getParameterTypes();
+
+		for (int i = 0; i < parameterTypes.length; i++) {
+			if (i == (parameterTypes.length - 1) && method.isVarArgs()) {
+				Class<?> varArgParameterType =
+					parameterTypes[i].getComponentType();
+
+				Object varArgArray = Array.newInstance(
+					varArgParameterType, parameters.length - i);
+
+				int varArgArrayIndex = -1;
+
+				for (int k = i; k < parameters.length; k++) {
+					varArgArrayIndex++;
+
+					if (Objects.equals(parameters[k], "Poshi.NULL")) {
+						Array.set(varArgArray, varArgArrayIndex, null);
+
+						continue;
+					}
+
+					Array.set(varArgArray, varArgArrayIndex, parameters[k]);
+				}
+
+				transformedParameters.add(varArgArray);
+
+				break;
+			}
+
+			Object parameter = parameters[i];
+
+			if (Objects.equals(parameter, "Poshi.NULL")) {
+				transformedParameters.add(null);
+			}
+
+			transformedParameters.add(parameter);
+		}
+
+		return transformedParameters.toArray();
 	}
 
 }
