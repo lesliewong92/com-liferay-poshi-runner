@@ -157,9 +157,29 @@ public class ExternalMethod {
 			}
 		}
 
-		throw new IllegalArgumentException(
-			"Unable to find method '" + methodName + "' of class '" +
-				clazz.getCanonicalName() + "'");
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("Unable to find method '");
+		sb.append(methodName);
+		sb.append("' of class '");
+		sb.append(clazz.getCanonicalName());
+
+		if ((parameters != null) && (parameters.length != 0)) {
+			sb.append("' with parameters types: (");
+
+			for (Object parameter : parameters) {
+				Class<?> parameterType = parameter.getClass();
+
+				sb.append(parameterType.toString());
+				sb.append(", ");
+			}
+
+			sb.delete(sb.length() - 2, sb.length());
+
+			sb.append(")");
+		}
+
+		throw new IllegalArgumentException(sb.toString());
 
 	}
 
