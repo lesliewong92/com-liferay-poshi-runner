@@ -142,7 +142,7 @@ public class ExternalMethod {
 					boolean varArgMatch = true;
 
 					for (int k = i; k < parameters.length; k++) {
-						if (Objects.equals(parameter, "Poshi.NULL")) {
+						if (Objects.equals(parameter, _POSHI_NULL_NOTATION)) {
 							continue;
 						}
 
@@ -160,7 +160,7 @@ public class ExternalMethod {
 					break;
 				}
 
-				if (Objects.equals(parameter, "Poshi.NULL")) {
+				if (Objects.equals(parameter, _POSHI_NULL_NOTATION)) {
 					continue;
 				}
 
@@ -222,7 +222,7 @@ public class ExternalMethod {
 				for (int k = i; k < parameters.length; k++) {
 					varArgArrayIndex++;
 
-					if (Objects.equals(parameters[k], "Poshi.NULL")) {
+					if (Objects.equals(parameters[k], _POSHI_NULL_NOTATION)) {
 						Array.set(varArgArray, varArgArrayIndex, null);
 
 						continue;
@@ -238,8 +238,10 @@ public class ExternalMethod {
 
 			Object parameter = parameters[i];
 
-			if (Objects.equals(parameter, "Poshi.NULL")) {
+			if (Objects.equals(parameter, _POSHI_NULL_NOTATION)) {
 				transformedParameters.add(null);
+
+				continue;
 			}
 
 			transformedParameters.add(parameter);
@@ -247,5 +249,7 @@ public class ExternalMethod {
 
 		return transformedParameters.toArray();
 	}
+
+	private static final String _POSHI_NULL_NOTATION = "Poshi.NULL";
 
 }
