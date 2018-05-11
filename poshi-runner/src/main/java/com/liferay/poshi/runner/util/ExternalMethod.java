@@ -119,34 +119,9 @@ public class ExternalMethod {
 
 			Class<?>[] parameterTypes = method.getParameterTypes();
 
-			boolean varArg = method.isVarArgs();
+			boolean varArgs = method.isVarArgs();
 
-			// if ((methodParameterTypes.length != parameters.length) &&
-			// 	!isVarArg) {
-
-			// 	continue;
-			// }
-
-			if (varArg) {
-				if (parameterTypes.length == 1) {
-					Class<?> previousParameterType = null;
-
-					for (Object parameter : parameters) {
-						if (previousParameterType == null) {
-							previousParameterType = parameter.getClass();
-
-							continue;
-						}
-
-						if (previousParameterType != parameter.getClass()) {
-							throw new RuntimeException(
-								"Parameter types are not consistent");
-						}
-					}
-				}
-			}
-
-			if (parameterTypes.length != parameters.length) {
+			if (!varArgs && (parameterTypes.length != parameters.length)) {
 				continue;
 			}
 
@@ -157,6 +132,31 @@ public class ExternalMethod {
 
 				if (Objects.equals(parameter, "Poshi.NULL")) {
 					continue;
+				}
+
+				if ((i == (parameterTypes.length - 1)) && varArgs) {
+					Class<?> varArgParameterType =
+						parameterTypes[i].getComponentType();
+
+					boolean varArgMatch = true;
+
+					for (int k = i; k < parameters.length; k++) {
+						if (Objects.equals(parameter, "Poshi.NULL")) {
+							continue;
+						}
+
+						if (varArgParameterType != parameters[k].getClass()) {
+							varArgMatch = false;
+
+							break;
+						}
+					}
+
+					if (!varArgMatch) {
+						parameterTypesMatch = false;
+					}
+
+					break;
 				}
 
 				if (parameterTypes[i] != parameter.getClass()) {
