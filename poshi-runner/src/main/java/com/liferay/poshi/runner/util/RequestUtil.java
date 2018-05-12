@@ -170,37 +170,37 @@ public class RequestUtil {
 					}
 				}
 
-				if (timeout != 0) {
-					urlConnection.setConnectTimeout(timeout);
-					urlConnection.setReadTimeout(timeout);
-				}
+				// if (timeout != 0) {
+				// 	urlConnection.setConnectTimeout(timeout);
+				// 	urlConnection.setReadTimeout(timeout);
+				// }
 
-				StringBuilder sb = new StringBuilder();
+				// StringBuilder sb = new StringBuilder();
 
-				int bytes = 0;
-				String line = null;
+				// int bytes = 0;
+				// String line = null;
 
-				try (BufferedReader bufferedReader = new BufferedReader(
-						new InputStreamReader(
-							urlConnection.getInputStream()))) {
+				// try (BufferedReader bufferedReader = new BufferedReader(
+				// 		new InputStreamReader(
+				// 			urlConnection.getInputStream()))) {
 
-					while ((line = bufferedReader.readLine()) != null) {
-						byte[] lineBytes = line.getBytes();
+				// 	while ((line = bufferedReader.readLine()) != null) {
+				// 		byte[] lineBytes = line.getBytes();
 
-						bytes += lineBytes.length;
+				// 		bytes += lineBytes.length;
 
-						if (bytes > (30 * 1024 * 1024)) {
-							sb.append("Response for ");
-							sb.append(url);
-							sb.append(" was truncated due to its size.");
+				// 		if (bytes > (30 * 1024 * 1024)) {
+				// 			sb.append("Response for ");
+				// 			sb.append(url);
+				// 			sb.append(" was truncated due to its size.");
 
-							break;
-						}
+				// 			break;
+				// 		}
 
-						sb.append(line);
-						sb.append("\n");
-					}
-				}
+				// 		sb.append(line);
+				// 		sb.append("\n");
+				// 	}
+				// }
 
 				return (HttpURLConnection)urlConnection;
 			}
