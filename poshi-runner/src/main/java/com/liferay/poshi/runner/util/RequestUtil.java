@@ -68,8 +68,22 @@ public class RequestUtil {
 		return requestHeaders;
 	}
 
+	public static String getResponseBody(HttpURLConnection httpURLConnection)
+		throws IOException {
+
+		// if (httpURLConnection == null) {
+
+		// }
+
+		return httpURLConnection.getResponseMessage();
+	}
+
 	public static String getStatusCode(HttpURLConnection httpURLConnection)
 		throws IOException {
+
+		// if (httpURLConnection == null) {
+
+		// }
 
 		return String.valueOf(httpURLConnection.getResponseCode());
 	}
