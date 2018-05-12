@@ -164,7 +164,22 @@ public class ExternalMethod {
 					continue;
 				}
 
-				if (parameterTypes[i] != parameter.getClass()) {
+				boolean childClass = false;
+
+				Class<?> currentParameterClass = parameter.getClass();
+
+				while (currentParameterClass != Object.class) {
+					if (parameterTypes[i] == currentParameterClass) {
+						childClass = true;
+
+						break;
+					}
+
+					currentParameterClass =
+						currentParameterClass.getSuperclass();
+				}
+
+				if (!childClass) {
 					parameterTypesMatch = false;
 
 					break;
