@@ -75,7 +75,32 @@ public class RequestUtil {
 
 		// }
 
-		return httpURLConnection.getResponseMessage();
+		StringBuilder sb = new StringBuilder();
+
+		int bytes = 0;
+		String line = null;
+
+		try (BufferedReader bufferedReader = new BufferedReader(
+				new InputStreamReader(
+					httpURLConnection.getInputStream()))) {
+
+			while ((line = bufferedReader.readLine()) != null) {
+				byte[] lineBytes = line.getBytes();
+
+				bytes += lineBytes.length;
+
+				if (bytes > (30 * 1024 * 1024)) {
+					sb.append("Response for was truncated due to its size.");
+
+					break;
+				}
+
+				sb.append(line);
+				sb.append("\n");
+			}
+		}
+
+		return sb.toString();
 	}
 
 	public static String getStatusCode(HttpURLConnection httpURLConnection)
