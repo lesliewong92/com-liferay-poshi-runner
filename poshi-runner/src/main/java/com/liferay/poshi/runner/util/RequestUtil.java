@@ -28,6 +28,9 @@ import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * @author Michael Hashimoto
  */
@@ -120,6 +123,22 @@ public class RequestUtil {
 					if (requestMethod.equals("GET")) {
 						throw new IllegalArgumentException(
 							"Request method 'GET' cannot have a request body");
+					}
+
+					if ((requestHeaders != null) &&
+						requestHeaders.containsKey("Content-Type")) {
+
+						String contentType = requestHeaders.get("Content-Type");
+
+						if (contentType.equals("application/json")) {
+							try {
+								new JSONObject(requestBody);
+							}
+							catch (JSONException jsone) {
+								throw new RuntimeException(
+									"Invalid JSON: '" + requestBody + "'");
+							}
+						}
 					}
 
 					httpURLConnection.setDoOutput(true);
