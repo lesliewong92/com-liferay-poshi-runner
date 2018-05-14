@@ -68,43 +68,15 @@ public class RequestUtil {
 		return requestHeaders;
 	}
 
-	public static String getResponseBody(HttpURLConnection httpURLConnection)
-		throws IOException {
-
-		StringBuilder sb = new StringBuilder();
-
-		int bytes = 0;
-		String line = null;
-
-		try (BufferedReader bufferedReader = new BufferedReader(
-				new InputStreamReader(httpURLConnection.getInputStream()))) {
-
-			while ((line = bufferedReader.readLine()) != null) {
-				byte[] lineBytes = line.getBytes();
-
-				bytes += lineBytes.length;
-
-				if (bytes > (30 * 1024 * 1024)) {
-					sb.append("Response for was truncated due to its size.");
-
-					break;
-				}
-
-				sb.append(line);
-				sb.append("\n");
-			}
-		}
-
-		return sb.toString();
+	public static String getResponseBody(HTTPResponse httpResponse) {
+		return httpResponse.getResponseBody();
 	}
 
-	public static String getStatusCode(HttpURLConnection httpURLConnection)
-		throws IOException {
-
-		return String.valueOf(httpURLConnection.getResponseCode());
+	public static String getStatusCode(HTTPResponse httpResponse) {
+		return httpResponse.getStatusCode();
 	}
 
-	public static HttpURLConnection request(
+	public static HTTPResponse request(
 			HTTPAuthorization httpAuthorizationHeader, int maxRetries,
 			String requestBody, Map<String, String> requestHeaders,
 			String requestMethod, int retryPeriod, int timeout, String url)
@@ -120,48 +92,80 @@ public class RequestUtil {
 
 				URLConnection urlConnection = urlObject.openConnection();
 
-				if (urlConnection instanceof HttpURLConnection) {
-					HttpURLConnection httpURLConnection =
-						(HttpURLConnection)urlConnection;
+				if (!(urlConnection instanceof HttpURLConnection)) {
+					throw new IllegalArgumentException(
+						"Connection must be of type HTTP.");
+				}
 
-					httpURLConnection.setRequestMethod(requestMethod);
+				HttpURLConnection httpURLConnection =
+					(HttpURLConnection)urlConnection;
 
-					if (httpAuthorizationHeader != null) {
+				httpURLConnection.setRequestMethod(requestMethod);
+
+				if (httpAuthorizationHeader != null) {
+					httpURLConnection.setRequestProperty(
+						"Authorization", httpAuthorizationHeader.toString());
+				}
+
+				if (requestHeaders != null) {
+					for (Map.Entry<String, String> requestHeader :
+							requestHeaders.entrySet()) {
+
 						httpURLConnection.setRequestProperty(
-							"Authorization",
-							httpAuthorizationHeader.toString());
-					}
-
-					if (requestHeaders != null) {
-						for (Map.Entry<String, String> requestHeader :
-								requestHeaders.entrySet()) {
-
-							httpURLConnection.setRequestProperty(
-								requestHeader.getKey(),
-								requestHeader.getValue());
-						}
-					}
-
-					if (requestBody != null) {
-						if (requestMethod.equals("GET")) {
-							throw new IllegalArgumentException(
-								"Request method 'GET' cannot have a request " +
-									"body");
-						}
-
-						httpURLConnection.setDoOutput(true);
-
-						try (OutputStream outputStream =
-								httpURLConnection.getOutputStream()) {
-
-							outputStream.write(requestBody.getBytes("UTF-8"));
-
-							outputStream.flush();
-						}
+							requestHeader.getKey(), requestHeader.getValue());
 					}
 				}
 
-				return (HttpURLConnection)urlConnection;
+				if (requestBody != null) {
+					if (requestMethod.equals("GET")) {
+						throw new IllegalArgumentException(
+							"Request method 'GET' cannot have a request body");
+					}
+
+					httpURLConnection.setDoOutput(true);
+
+					try (OutputStream outputStream =
+							httpURLConnection.getOutputStream()) {
+
+						outputStream.write(requestBody.getBytes("UTF-8"));
+
+						outputStream.flush();
+					}
+				}
+
+				if (timeout != 0) {
+					urlConnection.setConnectTimeout(timeout);
+					urlConnection.setReadTimeout(timeout);
+				}
+
+				StringBuilder sb = new StringBuilder();
+
+				int bytes = 0;
+				String line = null;
+
+				try (BufferedReader bufferedReader = new BufferedReader(
+						new InputStreamReader(
+							httpURLConnection.getInputStream()))) {
+
+					while ((line = bufferedReader.readLine()) != null) {
+						byte[] lineBytes = line.getBytes();
+
+						bytes += lineBytes.length;
+
+						if (bytes > (30 * 1024 * 1024)) {
+							sb.append(
+								"Response for was truncated due to its size.");
+
+							break;
+						}
+
+						sb.append(line);
+						sb.append("\n");
+					}
+				}
+
+				return new HTTPResponse(
+					sb.toString(), httpURLConnection.getResponseCode());
 			}
 			catch (IOException ioe) {
 				retryCount++;
@@ -178,7 +182,7 @@ public class RequestUtil {
 		}
 	}
 
-	public static HttpURLConnection request(
+	public static HTTPResponse request(
 			HTTPAuthorization httpAuthorizationHeader, String requestBody,
 			Map<String, String> requestHeaders, String requestMethod,
 			String url)
@@ -229,6 +233,26 @@ public class RequestUtil {
 		}
 
 		protected Type type;
+
+	}
+
+	public static class HTTPResponse {
+
+		public HTTPResponse(String body, int statusCode) {
+			this.body = body;
+			this.statusCode = String.valueOf(statusCode);
+		}
+
+		public String getResponseBody() {
+			return body;
+		}
+
+		public String getStatusCode() {
+			return statusCode;
+		}
+
+		protected String body;
+		protected String statusCode;
 
 	}
 
