@@ -17,7 +17,7 @@ package com.liferay.poshi.runner.util;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -118,6 +118,14 @@ public class ExternalMethod {
 		throws Exception {
 
 		for (Method method : clazz.getMethods()) {
+			System.out.println("Method name: " + method.getName());
+
+			for (Type type : method.getGenericParameterTypes()) {
+				System.out.println("Parameter type: " + type);
+			}
+
+			System.out.println();
+
 			if (!methodName.equals(method.getName())) {
 				continue;
 			}
