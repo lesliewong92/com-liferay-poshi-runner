@@ -81,8 +81,7 @@ public class RequestUtil {
 		String line = null;
 
 		try (BufferedReader bufferedReader = new BufferedReader(
-				new InputStreamReader(
-					httpURLConnection.getInputStream()))) {
+				new InputStreamReader(httpURLConnection.getInputStream()))) {
 
 			while ((line = bufferedReader.readLine()) != null) {
 				byte[] lineBytes = line.getBytes();
