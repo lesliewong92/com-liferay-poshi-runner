@@ -14,6 +14,9 @@
 
 package com.liferay.poshi.runner.util;
 
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -80,6 +83,19 @@ public class JSONUtil {
 		throws Exception {
 
 		return jsonObject.optString(name);
+	}
+
+	public static String getWithJSONPath(String jsonString, String jsonPath) {
+		DocumentContext documentContext = JsonPath.parse(jsonString);
+
+		Object object = documentContext.read(jsonPath);
+
+		if (object == null) {
+			throw new RuntimeException(
+				"Invalid JSON path " + jsonPath + " in " + jsonString);
+		}
+
+		return object.toString();
 	}
 
 	public static JSONArray toJSONArray(String json) throws Exception {
