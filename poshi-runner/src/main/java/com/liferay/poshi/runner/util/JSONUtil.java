@@ -43,19 +43,6 @@ public class JSONUtil {
 		return jsonObject.opt(name);
 	}
 
-	public static String get(String jsonString, String jsonPath) {
-		DocumentContext documentContext = JsonPath.parse(jsonString);
-
-		Object object = documentContext.read(jsonPath);
-
-		if (object == null) {
-			throw new RuntimeException(
-				"Invalid JSON path " + jsonPath + " in " + jsonString);
-		}
-
-		return object.toString();
-	}
-
 	public static boolean getBoolean(JSONObject jsonObject, String name)
 		throws Exception {
 
@@ -96,6 +83,19 @@ public class JSONUtil {
 		throws Exception {
 
 		return jsonObject.optString(name);
+	}
+
+	public static String getWithJSONPath(String jsonString, String jsonPath) {
+		DocumentContext documentContext = JsonPath.parse(jsonString);
+
+		Object object = documentContext.read(jsonPath);
+
+		if (object == null) {
+			throw new RuntimeException(
+				"Invalid JSON path " + jsonPath + " in " + jsonString);
+		}
+
+		return object.toString();
 	}
 
 	public static JSONArray toJSONArray(String json) throws Exception {
