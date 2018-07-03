@@ -65,6 +65,10 @@ public final class PoshiRunnerStackTraceUtil {
 		return namespace;
 	}
 
+	public static PoshiElementStackTrace getElementStackTrace() {
+		return _poshiElementStackTrace;
+	}
+
 	public static String getSimpleStackTrace() {
 		StringBuilder sb = new StringBuilder();
 
@@ -185,6 +189,10 @@ public final class PoshiRunnerStackTraceUtil {
 		_currentElement = currentElement;
 	}
 
+	public static void startElementStackTrace(Element element) {
+		_poshiElementStackTrace = new PoshiElementStackTrace(element);
+	}
+
 	public static void startStackTrace(
 		String classCommandName, String classType) {
 
@@ -225,6 +233,7 @@ public final class PoshiRunnerStackTraceUtil {
 
 	private static Element _currentElement;
 	private static final Stack<String> _filePaths = new Stack<>();
+	private static PoshiElementStackTrace _poshiElementStackTrace;
 	private static final Stack<String> _stackTrace = new Stack<>();
 
 }

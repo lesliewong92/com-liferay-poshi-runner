@@ -128,6 +128,21 @@ public class PoshiRunner {
 
 			SeleniumUtil.startSelenium();
 
+			String classCommandName =
+				PoshiRunnerGetterUtil.
+					getClassCommandNameFromNamespacedClassCommandName(
+						_testNamespacedClassCommandName);
+			String namespace =
+				PoshiRunnerGetterUtil.
+					getNamespaceFromNamespacedClassCommandName(
+						_testNamespacedClassCommandName);
+
+			Element commandElement =
+				PoshiRunnerContext.getTestCaseCommandElement(
+					classCommandName, namespace);
+
+			PoshiRunnerStackTraceUtil.startElementStackTrace(commandElement);
+
 			_runSetUp();
 		}
 		catch (WebDriverException wde) {
