@@ -70,10 +70,10 @@ public class PoshiLoggerElement {
 		sb.append("Status:" + _status);
 
 		for (Attribute attribute : (List<Attribute>)_element.attributes()) {
+			sb.append(" ");
 			sb.append(attribute.getName());
 			sb.append("=");
 			sb.append(attribute.getValue());
-			sb.append(" ");
 		}
 
 		for (PoshiLoggerElement childLoggerElement :
