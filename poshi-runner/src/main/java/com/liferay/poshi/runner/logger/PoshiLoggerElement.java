@@ -36,6 +36,10 @@ public class PoshiLoggerElement {
 		return _element;
 	}
 
+	public String getEvent() {
+		return _event;
+	}
+
 	public PoshiLoggerElement getLastChildLoggerElement() {
 		if (!_childPoshiLoggerElements.isEmpty()) {
 			return _childPoshiLoggerElements.get(
@@ -47,6 +51,10 @@ public class PoshiLoggerElement {
 
 	public String getStatus() {
 		return _status;
+	}
+
+	public void setEvent(String event) {
+		_event = event;
 	}
 
 	public void setExecutionException(Exception e) {
@@ -92,9 +100,11 @@ public class PoshiLoggerElement {
 	}
 
 	protected PoshiLoggerElement(
-		Element element, String status, Map<String, Object> variables) {
+		Element element, String event, String status,
+		Map<String, Object> variables) {
 
 		_element = element;
+		_event = event;
 		_status = status;
 		_variables = variables;
 	}
@@ -102,6 +112,7 @@ public class PoshiLoggerElement {
 	private List<PoshiLoggerElement> _childPoshiLoggerElements =
 		new ArrayList<>();
 	private final Element _element;
+	private String _event;
 	private Exception _executionException;
 	private String _status;
 	private final Map<String, Object> _variables;
