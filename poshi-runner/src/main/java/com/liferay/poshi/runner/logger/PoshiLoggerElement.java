@@ -77,6 +77,10 @@ public class PoshiLoggerElement {
 		sb.append(" ");
 		sb.append("Status:" + _status);
 
+		if (_event != null) {
+			sb.append(" (" + _event + ")");
+		}
+
 		for (Attribute attribute : (List<Attribute>)_element.attributes()) {
 			sb.append(" ");
 			sb.append(attribute.getName());
