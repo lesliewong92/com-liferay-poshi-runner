@@ -1544,15 +1544,20 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	}
 
 	@Override
-	public boolean isElementNotPresent(String locator) {
+	public boolean isElementNotPresent(String locator) throws Exception {
 		return !isElementPresent(locator);
 	}
 
 	@Override
-	public boolean isElementPresent(String locator) {
+	public boolean isElementPresent(String locator) throws Exception {
 		List<WebElement> webElements = getWebElements(locator, "1");
 
-		return !webElements.isEmpty();
+		if (true) {
+			throw new PoshiRunnerWarningException("This is a test warning");
+		}
+		else {
+			return !webElements.isEmpty();
+		}
 	}
 
 	@Override
@@ -1604,7 +1609,7 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	}
 
 	@Override
-	public boolean isNotSelectedLabel(String selectLocator, String pattern) {
+	public boolean isNotSelectedLabel(String selectLocator, String pattern) throws Exception {
 		if (isElementNotPresent(selectLocator)) {
 			return false;
 		}
@@ -1662,7 +1667,7 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	}
 
 	@Override
-	public boolean isSelectedLabel(String selectLocator, String pattern) {
+	public boolean isSelectedLabel(String selectLocator, String pattern) throws Exception {
 		if (isElementNotPresent(selectLocator)) {
 			return false;
 		}
