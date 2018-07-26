@@ -1609,7 +1609,9 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	}
 
 	@Override
-	public boolean isNotSelectedLabel(String selectLocator, String pattern) throws Exception {
+	public boolean isNotSelectedLabel(String selectLocator, String pattern)
+		throws Exception {
+
 		if (isElementNotPresent(selectLocator)) {
 			return false;
 		}
@@ -1667,7 +1669,9 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	}
 
 	@Override
-	public boolean isSelectedLabel(String selectLocator, String pattern) throws Exception {
+	public boolean isSelectedLabel(String selectLocator, String pattern)
+		throws Exception {
+
 		if (isElementNotPresent(selectLocator)) {
 			return false;
 		}

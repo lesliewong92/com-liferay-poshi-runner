@@ -14,11 +14,11 @@
 
 package com.liferay.poshi.runner.logger;
 
+import com.liferay.poshi.runner.PoshiRunnerExecutor;
 import com.liferay.poshi.runner.PoshiRunnerVariablesUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import org.dom4j.Element;
 
@@ -27,24 +27,28 @@ import org.dom4j.Element;
  */
 public class PoshiElementLogger {
 
-	public static void emptyExecutionStack() {
-		_executionStack = new Stack<>();
-	}
-
 	public static void fail(Element element, Exception e) {
-		PoshiLoggerElement poshiLoggerElement = new PoshiLoggerElement(
+		PoshiLogEntry poshiLogEntry = new PoshiLogEntry(
 			element, null, "fail",
 			PoshiRunnerVariablesUtil.getCommandMapVariables());
 
-		poshiLoggerElement.setExecutionException(e);
+		poshiLogEntry.setExecutionException(e);
 
-		_addPoshiLoggerElement(poshiLoggerElement);
+		_addPoshiLoggerElement(poshiLogEntry);
+	}
+
+	public static PoshiLogEntry getLastPoshiLogEntry() {
+		if (!_poshiLogEntries.isEmpty()) {
+			return _poshiLogEntries.get(_poshiLogEntries.size() - 1);
+		}
+
+		return null;
 	}
 
 	public static String getString() {
 		StringBuilder sb = new StringBuilder();
 
-		for (PoshiLoggerElement poshiElementLogger : _poshiLoggerElements) {
+		for (PoshiLogEntry poshiElementLogger : _poshiLogEntries) {
 			sb.append(poshiElementLogger.toString(1));
 			sb.append("\n");
 		}
@@ -57,88 +61,68 @@ public class PoshiElementLogger {
 	}
 
 	public static void pass(Element element, String event) {
-		PoshiLoggerElement poshiLoggerElement = new PoshiLoggerElement(
+		PoshiLogEntry poshiLogEntry = new PoshiLogEntry(
 			element, event, "pass",
 			PoshiRunnerVariablesUtil.getCommandMapVariables());
 
-		_addPoshiLoggerElement(poshiLoggerElement);
+		_addPoshiLoggerElement(poshiLogEntry);
 	}
 
-	public static void popExecutionStack() {
-		if (_executionStack.empty()) {
-			return;
-		}
-
-		PoshiLoggerElement poshiLoggerElement = _executionStack.pop();
-
-		PoshiLoggerElement lastChildPoshiLoggerElement =
-			poshiLoggerElement.getLastChildLoggerElement();
-
-		if (lastChildPoshiLoggerElement != null) {
-			String status = lastChildPoshiLoggerElement.getStatus();
-
-			if (!status.equals("fail")) {
-				poshiLoggerElement.setStatus("pass");
-			}
-		}
-	}
-
-	public static void pushExecutionStack(Element element) {
-		PoshiLoggerElement poshiLoggerElement = new PoshiLoggerElement(
+	public static void pend(Element element) {
+		PoshiLogEntry poshiLogEntry = new PoshiLogEntry(
 			element, null, "pending",
 			PoshiRunnerVariablesUtil.getCommandMapVariables());
 
-		_addPoshiLoggerElement(poshiLoggerElement);
-
-		_executionStack.push(poshiLoggerElement);
+		_addPoshiLoggerElement(poshiLogEntry);
 	}
 
 	public static void startLog() {
-		_executionStack = new Stack<>();
-		_poshiLoggerElements = new ArrayList<>();
+		_poshiLogEntries = new ArrayList<>();
 	}
 
 	public static void updateExecutingPoshiLoggerElementEvent(String event) {
-		if (_executionStack.empty()) {
+		if (PoshiRunnerExecutor.isExecutionStackEmpty()) {
 			throw new RuntimeException(
 				"Failed to update execution stack with event, the execution " +
 					"stack is empty");
 		}
 
-		PoshiLoggerElement executingPoshiLoggerElement = _executionStack.peek();
+		PoshiLogEntry executingPoshiLoggerElement =
+			PoshiRunnerExecutor.getExecutingElement();
 
-		PoshiLoggerElement lastChildLoggerElement =
+		PoshiLogEntry lastChildLoggerElement =
 			executingPoshiLoggerElement.getLastChildLoggerElement();
 
 		lastChildLoggerElement.setEvent(event);
 	}
 
 	public static void warn(Element element, Exception e) {
-		PoshiLoggerElement poshiLoggerElement = new PoshiLoggerElement(
+		PoshiLogEntry poshiLogEntry = new PoshiLogEntry(
 			element, e.getMessage(), "warn",
 			PoshiRunnerVariablesUtil.getCommandMapVariables());
 
-		poshiLoggerElement.setExecutionException(e);
+		poshiLogEntry.setExecutionException(e);
 
-		_addPoshiLoggerElement(poshiLoggerElement);
+		_addPoshiLoggerElement(poshiLogEntry);
 	}
 
-	private static void _addPoshiLoggerElement(
-		PoshiLoggerElement poshiLoggerElement) {
+	private static void _addPoshiLoggerElement(PoshiLogEntry poshiLogEntry) {
+		PoshiLogEntry lastPoshiLogEntry = getLastPoshiLogEntry();
 
-		if (!_executionStack.empty()) {
-			PoshiLoggerElement executingPoshiLoggerElement =
-				_executionStack.peek();
+		String status = lastPoshiLogEntry.getStatus();
 
-			executingPoshiLoggerElement.addToExecutionStackTrace(
-				poshiLoggerElement);
+		if (status.equals("pending")) {
+			PoshiLogEntry executingPoshiLoggerElement =
+				PoshiRunnerExecutor.getExecutingElement();
+
+			executingPoshiLoggerElement.addToChildPoshiLogEntries(
+				poshiLogEntry);
 		}
 		else {
-			_poshiLoggerElements.add(poshiLoggerElement);
+			_poshiLogEntries.add(poshiLogEntry);
 		}
 	}
 
-	private static Stack<PoshiLoggerElement> _executionStack;
-	private static List<PoshiLoggerElement> _poshiLoggerElements;
+	private static List<PoshiLogEntry> _poshiLogEntries;
 
 }

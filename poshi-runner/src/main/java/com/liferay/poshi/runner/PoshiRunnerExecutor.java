@@ -17,6 +17,7 @@ package com.liferay.poshi.runner;
 import com.liferay.poshi.runner.exception.PoshiRunnerWarningException;
 import com.liferay.poshi.runner.logger.CommandLoggerHandler;
 import com.liferay.poshi.runner.logger.PoshiElementLogger;
+import com.liferay.poshi.runner.logger.PoshiLogEntry;
 import com.liferay.poshi.runner.logger.SummaryLoggerHandler;
 import com.liferay.poshi.runner.logger.XMLLoggerHandler;
 import com.liferay.poshi.runner.selenium.LiferaySelenium;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -168,6 +170,14 @@ public class PoshiRunnerExecutor {
 		return conditionalValue;
 	}
 
+	/* public static PoshiLogEntry getExecutingElement() {
+		return _executionStack.peek();
+	}
+
+	public static boolean isExecutionStackEmpty() {
+		return _executionStack.isEmpty();
+	} */
+
 	public static void parseElement(Element element) throws Exception {
 		List<Element> childElements = element.elements();
 
@@ -204,7 +214,7 @@ public class PoshiRunnerExecutor {
 					}
 				}
 				else {
-					PoshiElementLogger.pushExecutionStack(childElement);
+					PoshiElementLogger.pend(element);
 
 					if (childElement.attributeValue("function") != null) {
 						runFunctionExecuteElement(childElement);
@@ -233,7 +243,7 @@ public class PoshiRunnerExecutor {
 						runTestCaseExecuteElement(childElement);
 					}
 
-					PoshiElementLogger.popExecutionStack();
+					// Set another status here
 				}
 			}
 			else {
@@ -1302,6 +1312,27 @@ public class PoshiRunnerExecutor {
 			XMLLoggerHandler.updateStatus(element, "conditional-fail");
 		}
 	}
+
+	// protected static PoshiLogEntry popExecutionStack() {
+	// 	if (_executionStack.empty()) {
+	// 		return null;
+	// 	}
+
+	// 	PoshiLogEntry poshiLogEntry = _executionStack.pop();
+
+	// 	PoshiLogEntry lastChildPoshiLoggerElement =
+	// 		poshiLogEntry.getLastChildLoggerElement();
+
+	// 	if (lastChildPoshiLoggerElement != null) {
+	// 		String status = lastChildPoshiLoggerElement.getStatus();
+
+	// 		if (!status.equals("fail")) {
+	// 			poshiLogEntry.setStatus("pass");
+	// 		}
+	// 	}
+
+	// 	return poshiLogEntry;
+	// }
 
 	private static Object _getVarValue(Element element) throws Exception {
 		Object varValue = element.attributeValue("value");

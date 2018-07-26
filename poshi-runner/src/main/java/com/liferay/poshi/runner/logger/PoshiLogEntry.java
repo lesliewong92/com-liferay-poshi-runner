@@ -24,12 +24,20 @@ import org.dom4j.Element;
 /**
  * @author Leslie Wong
  */
-public class PoshiLoggerElement {
+public class PoshiLogEntry {
 
-	public void addToExecutionStackTrace(
-		PoshiLoggerElement poshiLoggerElement) {
+	public PoshiLogEntry(
+		Element element, String event, String status,
+		Map<String, Object> variables) {
 
-		_childPoshiLoggerElements.add(poshiLoggerElement);
+		_element = element;
+		_event = event;
+		_status = status;
+		_variables = variables;
+	}
+
+	public void addToChildPoshiLogEntries(PoshiLogEntry poshiLogEntry) {
+		_childPoshiLogEntries.add(poshiLogEntry);
 	}
 
 	public Element getElement() {
@@ -40,10 +48,9 @@ public class PoshiLoggerElement {
 		return _event;
 	}
 
-	public PoshiLoggerElement getLastChildLoggerElement() {
-		if (!_childPoshiLoggerElements.isEmpty()) {
-			return _childPoshiLoggerElements.get(
-				_childPoshiLoggerElements.size() - 1);
+	public PoshiLogEntry getLastChildLoggerElement() {
+		if (!_childPoshiLogEntries.isEmpty()) {
+			return _childPoshiLogEntries.get(_childPoshiLogEntries.size() - 1);
 		}
 
 		return null;
@@ -88,9 +95,7 @@ public class PoshiLoggerElement {
 			sb.append(attribute.getValue());
 		}
 
-		for (PoshiLoggerElement childLoggerElement :
-				_childPoshiLoggerElements) {
-
+		for (PoshiLogEntry childLoggerElement : _childPoshiLogEntries) {
 			sb.append("\n");
 
 			for (int i = 0; i < tabstop; i++) {
@@ -103,18 +108,7 @@ public class PoshiLoggerElement {
 		return sb.toString();
 	}
 
-	protected PoshiLoggerElement(
-		Element element, String event, String status,
-		Map<String, Object> variables) {
-
-		_element = element;
-		_event = event;
-		_status = status;
-		_variables = variables;
-	}
-
-	private List<PoshiLoggerElement> _childPoshiLoggerElements =
-		new ArrayList<>();
+	private List<PoshiLogEntry> _childPoshiLogEntries = new ArrayList<>();
 	private final Element _element;
 	private String _event;
 	private Exception _executionException;

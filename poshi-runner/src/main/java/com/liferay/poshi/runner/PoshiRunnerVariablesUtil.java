@@ -48,7 +48,13 @@ public class PoshiRunnerVariablesUtil {
 	}
 
 	public static Map<String, Object> getCommandMapVariables() {
-		return new HashMap<>(_commandMap);
+		Map<String, Object> commandMapCopy = new HashMap<>();
+
+		for (Map.Entry<String, Object> entry : _commandMap.entrySet()) {
+			commandMapCopy.put(entry.getKey(), entry.getValue());
+		}
+
+		return commandMapCopy;
 	}
 
 	public static String getReplacedCommandVarsString(String token)
