@@ -41,18 +41,10 @@ public class PoshiElementLogger {
 		PoshiLogEntry poshiLogEntry = PoshiRunnerExecutor.getCurrentLogEntry();
 
 		if (poshiLogEntry != null) {
-			PoshiLogEntry childPoshiLogEntry =
-				poshiLogEntry.getLastChildPoshiLogEntry();
-
-			if (childPoshiLogEntry != null) {
-				return childPoshiLogEntry;
-			}
-
-			return poshiLogEntry;
+			return poshiLogEntry.getLastChildPoshiLogEntry();
 		}
-		else {
-			return _poshiLogEntries.get(_poshiLogEntries.size() - 1);
-		}
+
+		return _poshiLogEntries.get(_poshiLogEntries.size() - 1);
 	}
 
 	public static void pass(Element element) {

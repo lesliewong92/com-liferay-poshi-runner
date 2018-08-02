@@ -1338,12 +1338,10 @@ public class PoshiRunnerExecutor {
 		PoshiLogEntry lastChildPoshiLogEntry =
 			poshiLogEntry.getLastChildPoshiLogEntry();
 
-		if (lastChildPoshiLogEntry != null) {
-			String status = lastChildPoshiLogEntry.getStatus();
+		String status = lastChildPoshiLogEntry.getStatus();
 
-			if (!status.equals("fail")) {
-				poshiLogEntry.setStatus("pass");
-			}
+		if (!status.equals("fail")) {
+			poshiLogEntry.setStatus("pass");
 		}
 
 		return poshiLogEntry;
