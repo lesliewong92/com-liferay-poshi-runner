@@ -53,10 +53,13 @@ public class PoshiLogEntry {
 
 	public PoshiLogEntry getLastChildPoshiLogEntry() {
 		if (!_childPoshiLogEntries.isEmpty()) {
-			return _childPoshiLogEntries.get(_childPoshiLogEntries.size() - 1);
+			PoshiLogEntry lastChildPoshiLogEntry = _childPoshiLogEntries.get(
+				_childPoshiLogEntries.size() - 1);
+
+			return lastChildPoshiLogEntry.getLastChildPoshiLogEntry();
 		}
 
-		return null;
+		return this;
 	}
 
 	public String getStatus() {
