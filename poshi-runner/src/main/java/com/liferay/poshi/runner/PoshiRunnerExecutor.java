@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1244,11 +1245,13 @@ public class PoshiRunnerExecutor {
 		return null;
 	}
 
+	private static PoshiStackFrame _currentStackFrame;
 	private static Element _functionExecuteElement;
 	private static String _functionWarningMessage;
 	private static final Pattern _locatorKeyPattern = Pattern.compile(
 		"\\S#\\S");
 	private static Object _macroReturnValue;
+	private static Stack<PoshiStackFrame> _poshiCallStack;
 	private static Object _returnObject;
 	private static final Pattern _variablePattern = Pattern.compile(
 		"\\$\\{([^}]*)\\}");
