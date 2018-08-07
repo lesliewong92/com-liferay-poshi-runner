@@ -114,7 +114,7 @@ public class PoshiRunnerExecutor {
 			}
 		}
 		else if (elementName.equals("isset")) {
-			if (PoshiRunnerVariablesUtil.containsKeyInCommandMap(
+			if (_currentStackFrame.containsVariable(
 					element.attributeValue("var"))) {
 
 				conditionalValue = true;
@@ -163,35 +163,41 @@ public class PoshiRunnerExecutor {
 				runEchoElement(childElement);
 			}
 			else if (childElementName.equals("execute")) {
-				if (childElement.attributeValue("function") != null) {
-					runFunctionExecuteElement(childElement);
-				}
-				else if (childElement.attributeValue("groovy-script") != null) {
+				if (childElement.attributeValue("groovy-script") != null) {
 					runGroovyScriptElement(childElement);
-				}
-				else if (childElement.attributeValue("macro") != null) {
-					runMacroExecuteElement(childElement, "macro");
-				}
-				else if ((childElement.attributeValue("macro-desktop") !=
-							 null) &&
-						 !PropsValues.MOBILE_BROWSER) {
-
-					runMacroExecuteElement(childElement, "macro-desktop");
-				}
-				else if ((childElement.attributeValue("macro-mobile") !=
-							 null) &&
-						 PropsValues.MOBILE_BROWSER) {
-
-					runMacroExecuteElement(childElement, "macro-mobile");
 				}
 				else if (childElement.attributeValue("selenium") != null) {
 					runSeleniumElement(childElement);
 				}
-				else if (childElement.attributeValue("test-case") != null) {
-					runTestCaseExecuteElement(childElement);
-				}
 				else if (childElement.attributeValue("method") != null) {
 					runMethodExecuteElement(childElement);
+				}
+				else {
+					_poshiCallStack.push(_currentStackFrame);
+
+					if (childElement.attributeValue("function") != null) {
+						runFunctionExecuteElement(childElement);
+					}
+					else if (childElement.attributeValue("macro") != null) {
+						runMacroExecuteElement(childElement, "macro");
+					}
+					else if ((childElement.attributeValue("macro-desktop") !=
+								 null) &&
+							 !PropsValues.MOBILE_BROWSER) {
+
+						runMacroExecuteElement(childElement, "macro-desktop");
+					}
+					else if ((childElement.attributeValue("macro-mobile") !=
+								 null) &&
+							 PropsValues.MOBILE_BROWSER) {
+
+						runMacroExecuteElement(childElement, "macro-mobile");
+					}
+					else if (childElement.attributeValue("test-case") != null) {
+						runTestCaseExecuteElement(childElement);
+					}
+
+					_poshiCallStack.pop();
 				}
 			}
 			else if (childElementName.equals("if")) {

@@ -29,8 +29,6 @@ import java.util.regex.Pattern;
 public class PoshiRunnerVariablesUtil {
 
 	public static void clear() {
-		_commandMap.clear();
-		_commandMapStack.clear();
 		_executeMap.clear();
 		_staticMap.clear();
 	}

@@ -28,6 +28,10 @@ public class PoshiStackFrame {
 		_element = element;
 	}
 
+	public boolean containsVariable(String key) {
+		return _variables.containsKey(key);
+	}
+
 	public Object getVariable(String key) {
 		return _variables.get(key);
 	}
