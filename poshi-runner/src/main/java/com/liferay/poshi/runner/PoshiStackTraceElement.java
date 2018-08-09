@@ -14,7 +14,9 @@
 
 package com.liferay.poshi.runner;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.dom4j.Element;
@@ -24,25 +26,39 @@ import org.dom4j.Element;
  */
 public class PoshiStackTraceElement {
 
-	public PoshiStackTraceElement(Element element, String filePath) {
+	public PoshiStackTraceElement(
+		Element element, PoshiStackTraceElement parentPoshiStackTraceElement) {
+
 		_element = element;
-		_filePath = filePath;
+		parentElement = parentPoshiStackTraceElement;
 	}
 
-	public void addVariable(String name, Object value) {
-		_variables.put(name, value);
+	public void addChildStackTraceElement(
+		PoshiStackTraceElement poshiStackTraceElement) {
+
+		_childElements.add(poshiStackTraceElement);
 	}
 
-	public Object getVariable(String name) {
-		return _variables.get(name);
+	public void addVariable(String key, Object value) {
+		_variables.put(key, value);
 	}
 
-	public boolean issetVariable(String name) {
-		return _variables.containsKey(name);
+	public Object getVariable(String key) {
+		return _variables.get(key);
 	}
 
+	public boolean issetVariable(String key) {
+		return _variables.containsKey(key);
+	}
+
+	protected PoshiStackTraceElement getParentElement() {
+		return parentElement;
+	}
+
+	protected PoshiStackTraceElement parentElement;
+
+	private List<PoshiStackTraceElement> _childElements = new ArrayList<>();
 	private final Element _element;
-	private final String _filePath;
 	private Map<String, Object> _variables = new HashMap<>();
 
 }
