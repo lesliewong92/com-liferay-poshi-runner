@@ -711,8 +711,28 @@ public class PoshiRunnerExecutor {
 		}
 	}
 
-	public static void runMacroCommandElement(Element commandElement)
+	public static void runMacroCommandElement(
+			Element commandElement, String namespacedClassCommandName)
 		throws Exception {
+
+		String classCommandName =
+			PoshiRunnerGetterUtil.
+				getClassCommandNameFromNamespacedClassCommandName(
+					namespacedClassCommandName);
+
+		String className =
+			PoshiRunnerGetterUtil.getClassNameFromNamespacedClassCommandName(
+				classCommandName);
+
+		String namespace = PoshiRunnerStackTraceUtil.getCurrentNamespace(
+			namespacedClassCommandName);
+
+		List<Element> rootVarElements = PoshiRunnerContext.getRootVarElements(
+			"macro", className, namespace);
+
+		for (Element rootVarElement : rootVarElements) {
+			runRootVarElement(rootVarElement, true);
+		}
 
 		PoshiRunnerStackTraceUtil.setCurrentElement(commandElement);
 
@@ -737,10 +757,6 @@ public class PoshiRunnerExecutor {
 				getClassCommandNameFromNamespacedClassCommandName(
 					namespacedClassCommandName);
 
-		String className =
-			PoshiRunnerGetterUtil.getClassNameFromNamespacedClassCommandName(
-				classCommandName);
-
 		List<Element> executeVarElements = executeElement.elements("var");
 
 		for (Element executeVarElement : executeVarElements) {
@@ -749,23 +765,16 @@ public class PoshiRunnerExecutor {
 
 		PoshiRunnerStackTraceUtil.pushStackTrace(executeElement);
 
+		SummaryLoggerHandler.startSummary(executeElement);
+
 		String namespace = PoshiRunnerStackTraceUtil.getCurrentNamespace(
 			namespacedClassCommandName);
-
-		List<Element> rootVarElements = PoshiRunnerContext.getRootVarElements(
-			"macro", className, namespace);
-
-		for (Element rootVarElement : rootVarElements) {
-			runRootVarElement(rootVarElement, true);
-		}
-
-		SummaryLoggerHandler.startSummary(executeElement);
 
 		Element commandElement = PoshiRunnerContext.getMacroCommandElement(
 			classCommandName, namespace);
 
 		try {
-			runMacroCommandElement(commandElement);
+			runMacroCommandElement(commandElement, namespacedClassCommandName);
 
 			Element returnElement = executeElement.element("return");
 
@@ -1064,8 +1073,23 @@ public class PoshiRunnerExecutor {
 		XMLLoggerHandler.updateStatus(element, "pass");
 	}
 
-	public static void runTestCaseCommandElement(Element commandElement)
+	public static void runTestCaseCommandElement(
+			Element commandElement, String namespacedClassCommandName)
 		throws Exception {
+
+		String className =
+			PoshiRunnerGetterUtil.getClassNameFromNamespacedClassCommandName(
+				namespacedClassCommandName);
+		String namespace =
+			PoshiRunnerGetterUtil.getNamespaceFromNamespacedClassCommandName(
+				namespacedClassCommandName);
+
+		List<Element> rootVarElements = PoshiRunnerContext.getRootVarElements(
+			"test-case", className, namespace);
+
+		for (Element rootVarElement : rootVarElements) {
+			runRootVarElement(rootVarElement, true);
+		}
 
 		PoshiRunnerStackTraceUtil.setCurrentElement(commandElement);
 
@@ -1084,26 +1108,16 @@ public class PoshiRunnerExecutor {
 		String namespacedClassCommandName = executeElement.attributeValue(
 			"test-case");
 
-		PoshiRunnerStackTraceUtil.pushStackTrace(executeElement);
-
-		String className =
-			PoshiRunnerGetterUtil.getClassNameFromNamespacedClassCommandName(
-				namespacedClassCommandName);
 		String namespace =
 			PoshiRunnerGetterUtil.getNamespaceFromNamespacedClassCommandName(
-				namespacedClassCommandName);
+			namespacedClassCommandName);
 
-		List<Element> rootVarElements = PoshiRunnerContext.getRootVarElements(
-			"test-case", className, namespace);
-
-		for (Element rootVarElement : rootVarElements) {
-			runRootVarElement(rootVarElement, true);
-		}
+		PoshiRunnerStackTraceUtil.pushStackTrace(executeElement);
 
 		Element commandElement = PoshiRunnerContext.getTestCaseCommandElement(
 			namespacedClassCommandName, namespace);
 
-		runTestCaseCommandElement(commandElement);
+		runTestCaseCommandElement(commandElement, namespacedClassCommandName);
 
 		PoshiRunnerStackTraceUtil.popStackTrace();
 
