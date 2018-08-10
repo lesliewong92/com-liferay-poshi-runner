@@ -21,6 +21,10 @@ import org.dom4j.Element;
  */
 public class PoshiExecutorStack {
 
+	public PoshiExecutorStack() {
+		rootPoshiStackTraceElement = null;
+	}
+
 	/**
 	 * Wraps the stack needs of an instance executor
 	 * Will simulate the "push" and "pops" when executing on new depth
