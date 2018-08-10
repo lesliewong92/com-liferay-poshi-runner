@@ -45,6 +45,8 @@ public class PoshiExecutorStack {
 			_currentPoshiStackTraceElement.getParentElement();
 
 		parentStackTraceElement.addChildStackTraceElement(newStackTraceElement);
+
+		_currentPoshiStackTraceElement = newStackTraceElement;
 	}
 
 	public void addValue(String key, Object value) {
