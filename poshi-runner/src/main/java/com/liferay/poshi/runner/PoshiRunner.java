@@ -250,7 +250,7 @@ public class PoshiRunner {
 
 			XMLLoggerHandler.updateStatus(commandElement, "pending");
 
-			PoshiRunnerExecutor.runTestCaseExecuteElement(commandElement);
+			_poshiRunnerExecutor.runTestCaseExecuteElement(commandElement);
 
 			XMLLoggerHandler.updateStatus(commandElement, "pass");
 
@@ -276,6 +276,14 @@ public class PoshiRunner {
 		_runNamespacedClassCommandName(_testNamespacedClassName + "#tear-down");
 	}
 
+	private final PoshiRunnerExecutor _commandExecutorStack =
+		new PoshiRunnerExecutor();
+	private final PoshiRunnerExecutor _poshiRunnerExecutor =
+		new PoshiRunnerExecutor();
+	private final PoshiRunnerExecutor _setupExecutorStack =
+		new PoshiRunnerExecutor();
+	private final PoshiRunnerExecutor _teardownExecutorStack =
+		new PoshiRunnerExecutor();
 	private final String _testNamespacedClassCommandName;
 	private final String _testNamespacedClassName;
 
