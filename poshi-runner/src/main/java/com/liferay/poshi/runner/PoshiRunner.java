@@ -251,7 +251,7 @@ public class PoshiRunner {
 			XMLLoggerHandler.updateStatus(commandElement, "pending");
 
 			_poshiRunnerExecutor.runTestCaseCommandElement(
-				commandElement, namespacedClassCommandName);
+				commandElement, namespacedClassCommandName, false);
 
 			XMLLoggerHandler.updateStatus(commandElement, "pass");
 

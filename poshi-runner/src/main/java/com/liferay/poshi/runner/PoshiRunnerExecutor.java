@@ -1075,6 +1075,15 @@ public class PoshiRunnerExecutor {
 			Element commandElement, String namespacedClassCommandName)
 		throws Exception {
 
+		runTestCaseCommandElement(
+			commandElement, namespacedClassCommandName, true);
+	}
+
+	public void runTestCaseCommandElement(
+			Element commandElement, String namespacedClassCommandName,
+			boolean updateLoggerStatus)
+		throws Exception {
+
 		String className =
 			PoshiRunnerGetterUtil.getClassNameFromNamespacedClassCommandName(
 				namespacedClassCommandName);
@@ -1086,7 +1095,7 @@ public class PoshiRunnerExecutor {
 			"test-case", className, namespace);
 
 		for (Element rootVarElement : rootVarElements) {
-			runRootVarElement(rootVarElement, true);
+			runRootVarElement(rootVarElement, updateLoggerStatus);
 		}
 
 		PoshiRunnerStackTraceUtil.setCurrentElement(commandElement);
