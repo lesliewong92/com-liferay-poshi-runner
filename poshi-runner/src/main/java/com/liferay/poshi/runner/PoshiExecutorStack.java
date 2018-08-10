@@ -37,18 +37,6 @@ public class PoshiExecutorStack {
 		rootPoshiStackTraceElement = new PoshiStackTraceElement(element, null);
 	}
 
-	public void addElement(Element element) {
-		PoshiStackTraceElement newStackTraceElement =
-			new PoshiStackTraceElement(element, _currentPoshiStackTraceElement);
-
-		PoshiStackTraceElement parentStackTraceElement =
-			_currentPoshiStackTraceElement.getParentElement();
-
-		parentStackTraceElement.addChildStackTraceElement(newStackTraceElement);
-
-		_currentPoshiStackTraceElement = newStackTraceElement;
-	}
-
 	public void addValue(String key, Object value) {
 		_currentPoshiStackTraceElement.addVariable(key, value);
 	}
@@ -82,6 +70,18 @@ public class PoshiExecutorStack {
 
 		_currentPoshiStackTraceElement.addChildStackTraceElement(
 			newStackTraceElement);
+
+		_currentPoshiStackTraceElement = newStackTraceElement;
+	}
+
+	public void setCurrentElement(Element element) {
+		PoshiStackTraceElement newStackTraceElement =
+			new PoshiStackTraceElement(element, _currentPoshiStackTraceElement);
+
+		PoshiStackTraceElement parentStackTraceElement =
+			_currentPoshiStackTraceElement.getParentElement();
+
+		parentStackTraceElement.addChildStackTraceElement(newStackTraceElement);
 
 		_currentPoshiStackTraceElement = newStackTraceElement;
 	}
