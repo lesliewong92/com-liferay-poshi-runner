@@ -232,21 +232,9 @@ public class PoshiRunner {
 			String namespacedClassCommandName)
 		throws Exception {
 
-		String className =
-			PoshiRunnerGetterUtil.getClassNameFromNamespacedClassCommandName(
-				namespacedClassCommandName);
 		String namespace =
 			PoshiRunnerGetterUtil.getNamespaceFromNamespacedClassCommandName(
 				namespacedClassCommandName);
-
-		List<Element> varElements = PoshiRunnerContext.getRootVarElements(
-			"test-case", className, namespace);
-
-		for (Element varElement : varElements) {
-			PoshiRunnerExecutor.runRootVarElement(varElement, false);
-		}
-
-		PoshiRunnerVariablesUtil.pushCommandMap();
 
 		String classCommandName =
 			PoshiRunnerGetterUtil.
@@ -262,7 +250,7 @@ public class PoshiRunner {
 
 			XMLLoggerHandler.updateStatus(commandElement, "pending");
 
-			PoshiRunnerExecutor.parseElement(commandElement);
+			PoshiRunnerExecutor.runTestCaseExecuteElement(commandElement);
 
 			XMLLoggerHandler.updateStatus(commandElement, "pass");
 
