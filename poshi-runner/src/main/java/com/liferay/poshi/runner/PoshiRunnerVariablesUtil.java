@@ -52,60 +52,47 @@ public class PoshiRunnerVariablesUtil {
 	// 	return _staticMap.containsKey(replaceCommandVars(key));
 	// }
 
-	public static String getReplacedCommandVarsString(String token)
-		throws Exception {
+	// public static String getReplacedCommandVarsString(String token)
+	// 	throws Exception {
 
-		if (token == null) {
-			return null;
-		}
+	// 	if (token == null) {
+	// 		return null;
+	// 	}
 
-		Object tokenObject = replaceCommandVars(token);
+	// 	Object tokenObject = replaceCommandVars(token);
 
-		return tokenObject.toString();
-	}
+	// 	return tokenObject.toString();
+	// }
 
-	/* NEW */
-	public static String getValueFromMapAsString(
-		String key, Map<String, Object> map) {
+	// public static String getStringFromCommandMap(String key) {
+	// 	if (containsKeyInCommandMap((String)replaceCommandVars(key))) {
+	// 		Object object = getValueFromCommandMap(key);
 
-		if (map.containsKey(key)) {
-			Object object = map.get(key);
+	// 		return object.toString();
+	// 	}
 
-			return object.toString();
-		}
+	// 	return null;
+	// }
 
-		return null;
-	}
+	// public static String getStringFromExecuteMap(String key) {
+	// 	if (containsKeyInExecuteMap((String)replaceCommandVars(key))) {
+	// 		Object object = getValueFromExecuteMap(key);
 
-	public static String getStringFromCommandMap(String key) {
-		if (containsKeyInCommandMap((String)replaceCommandVars(key))) {
-			Object object = getValueFromCommandMap(key);
+	// 		return object.toString();
+	// 	}
 
-			return object.toString();
-		}
+	// 	return null;
+	// }
 
-		return null;
-	}
+	// public static String getStringFromStaticMap(String key) {
+	// 	if (containsKeyInStaticMap((String)replaceStaticVars(key))) {
+	// 		Object object = getValueFromExecuteMap(key);
 
-	public static String getStringFromExecuteMap(String key) {
-		if (containsKeyInExecuteMap((String)replaceCommandVars(key))) {
-			Object object = getValueFromExecuteMap(key);
+	// 		return object.toString();
+	// 	}
 
-			return object.toString();
-		}
-
-		return null;
-	}
-
-	public static String getStringFromStaticMap(String key) {
-		if (containsKeyInStaticMap((String)replaceStaticVars(key))) {
-			Object object = getValueFromExecuteMap(key);
-
-			return object.toString();
-		}
-
-		return null;
-	}
+	// 	return null;
+	// }
 
 	// public static Object getValueFromCommandMap(String key) {
 	// 	return _commandMap.get(replaceCommandVars(key));
@@ -119,61 +106,76 @@ public class PoshiRunnerVariablesUtil {
 	// 	return _staticMap.get(replaceCommandVars(key));
 	// }
 
-	public static void popCommandMap() {
-		_commandMap = _commandMapStack.pop();
+	// public static void popCommandMap() {
+	// 	_commandMap = _commandMapStack.pop();
 
-		_commandMap.putAll(_staticMap);
+	// 	_commandMap.putAll(_staticMap);
 
-		_executeMap = new HashMap<>();
-	}
+	// 	_executeMap = new HashMap<>();
+	// }
 
-	public static void pushCommandMap() {
-		_commandMapStack.push(_commandMap);
+	// public static void pushCommandMap() {
+	// 	_commandMapStack.push(_commandMap);
 
-		_commandMap = _executeMap;
+	// 	_commandMap = _executeMap;
 
-		_commandMap.putAll(_staticMap);
+	// 	_commandMap.putAll(_staticMap);
 
-		_executeMap = new HashMap<>();
-	}
+	// 	_executeMap = new HashMap<>();
+	// }
 
-	public static void putIntoCommandMap(String key, Object value)
-		throws Exception {
+	// public static void putIntoCommandMap(String key, Object value)
+	// 	throws Exception {
 
-		if (value instanceof String) {
-			_commandMap.put(
-				(String)replaceCommandVars(key),
-				replaceCommandVars((String)value));
+	// 	if (value instanceof String) {
+	// 		_commandMap.put(
+	// 			(String)replaceCommandVars(key),
+	// 			replaceCommandVars((String)value));
+	// 	}
+	// 	else {
+	// 		_commandMap.put((String)replaceCommandVars(key), value);
+	// 	}
+	// }
+
+	// public static void putIntoExecuteMap(String key, Object value)
+	// 	throws Exception {
+
+	// 	if (value instanceof String) {
+	// 		_executeMap.put(
+	// 			(String)replaceCommandVars(key),
+	// 			replaceCommandVars((String)value));
+	// 	}
+	// 	else {
+	// 		_executeMap.put((String)replaceCommandVars(key), value);
+	// 	}
+	// }
+
+	// public static void putIntoStaticMap(String key, Object value)
+	// 	throws Exception {
+
+	// 	if (value instanceof String) {
+	// 		_staticMap.put(
+	// 			(String)replaceCommandVars(key),
+	// 			replaceCommandVars((String)value));
+	// 	}
+	// 	else {
+	// 		_staticMap.put((String)replaceCommandVars(key), value);
+	// 	}
+	// }
+
+	/* NEW */
+	public static String getValueFromMapAsString(
+		String key, Map<String, Object> map) {
+
+		if (map.containsKey(key)) {
+			Object object = map.get(key);
+
+			if (object != null) {
+				return object.toString();
+			}
 		}
-		else {
-			_commandMap.put((String)replaceCommandVars(key), value);
-		}
-	}
 
-	public static void putIntoExecuteMap(String key, Object value)
-		throws Exception {
-
-		if (value instanceof String) {
-			_executeMap.put(
-				(String)replaceCommandVars(key),
-				replaceCommandVars((String)value));
-		}
-		else {
-			_executeMap.put((String)replaceCommandVars(key), value);
-		}
-	}
-
-	public static void putIntoStaticMap(String key, Object value)
-		throws Exception {
-
-		if (value instanceof String) {
-			_staticMap.put(
-				(String)replaceCommandVars(key),
-				replaceCommandVars((String)value));
-		}
-		else {
-			_staticMap.put((String)replaceCommandVars(key), value);
-		}
+		return null;
 	}
 
 	/* NEW */
@@ -183,15 +185,13 @@ public class PoshiRunnerVariablesUtil {
 		Matcher matcher = _pattern.matcher(token);
 
 		if (matcher.matches() && map.containsKey(matcher.group(1))) {
-			// TODO
-			return getValueFromCommandMap(matcher.group(1));
+			return map.get(matcher.group(1));
 		}
 
 		matcher.reset();
 
 		while (matcher.find() && map.containsKey(matcher.group(1))) {
-			// TODO
-			String varValue = getStringFromCommandMap(matcher.group(1));
+			String varValue = getValueFromMapAsString(matcher.group(1), map);
 
 			token = StringUtil.replace(token, matcher.group(), varValue);
 		}
@@ -199,59 +199,59 @@ public class PoshiRunnerVariablesUtil {
 		return token;
 	}
 
-	public static Object replaceCommandVars(String token) {
-		Matcher matcher = _pattern.matcher(token);
+	// public static Object replaceCommandVars(String token) {
+	// 	Matcher matcher = _pattern.matcher(token);
 
-		if (matcher.matches() && _commandMap.containsKey(matcher.group(1))) {
-			return getValueFromCommandMap(matcher.group(1));
-		}
+	// 	if (matcher.matches() && _commandMap.containsKey(matcher.group(1))) {
+	// 		return getValueFromCommandMap(matcher.group(1));
+	// 	}
 
-		matcher.reset();
+	// 	matcher.reset();
 
-		while (matcher.find() && _commandMap.containsKey(matcher.group(1))) {
-			String varValue = getStringFromCommandMap(matcher.group(1));
+	// 	while (matcher.find() && _commandMap.containsKey(matcher.group(1))) {
+	// 		String varValue = getStringFromCommandMap(matcher.group(1));
 
-			token = StringUtil.replace(token, matcher.group(), varValue);
-		}
+	// 		token = StringUtil.replace(token, matcher.group(), varValue);
+	// 	}
 
-		return token;
-	}
+	// 	return token;
+	// }
 
-	public static Object replaceExecuteVars(String token) {
-		Matcher matcher = _pattern.matcher(token);
+	// public static Object replaceExecuteVars(String token) {
+	// 	Matcher matcher = _pattern.matcher(token);
 
-		if (matcher.matches() && _executeMap.containsKey(matcher.group(1))) {
-			return getValueFromExecuteMap(matcher.group(1));
-		}
+	// 	if (matcher.matches() && _executeMap.containsKey(matcher.group(1))) {
+	// 		return getValueFromExecuteMap(matcher.group(1));
+	// 	}
 
-		matcher.reset();
+	// 	matcher.reset();
 
-		while (matcher.find() && _executeMap.containsKey(matcher.group(1))) {
-			String varValue = getStringFromExecuteMap(matcher.group(1));
+	// 	while (matcher.find() && _executeMap.containsKey(matcher.group(1))) {
+	// 		String varValue = getStringFromExecuteMap(matcher.group(1));
 
-			token = StringUtil.replace(token, matcher.group(), varValue);
-		}
+	// 		token = StringUtil.replace(token, matcher.group(), varValue);
+	// 	}
 
-		return token;
-	}
+	// 	return token;
+	// }
 
-	public static Object replaceStaticVars(String token) {
-		Matcher matcher = _pattern.matcher(token);
+	// public static Object replaceStaticVars(String token) {
+	// 	Matcher matcher = _pattern.matcher(token);
 
-		if (matcher.matches() && _staticMap.containsKey(matcher.group(1))) {
-			return getValueFromStaticMap(matcher.group(1));
-		}
+	// 	if (matcher.matches() && _staticMap.containsKey(matcher.group(1))) {
+	// 		return getValueFromStaticMap(matcher.group(1));
+	// 	}
 
-		matcher.reset();
+	// 	matcher.reset();
 
-		while (matcher.find() && _staticMap.containsKey(matcher.group(1))) {
-			String varValue = getStringFromStaticMap(matcher.group(1));
+	// 	while (matcher.find() && _staticMap.containsKey(matcher.group(1))) {
+	// 		String varValue = getStringFromStaticMap(matcher.group(1));
 
-			token = StringUtil.replace(token, matcher.group(), varValue);
-		}
+	// 		token = StringUtil.replace(token, matcher.group(), varValue);
+	// 	}
 
-		return token;
-	}
+	// 	return token;
+	// }
 
 	public static Object getMethodReturnValue(
 			List<String> args, String className, String methodName,
