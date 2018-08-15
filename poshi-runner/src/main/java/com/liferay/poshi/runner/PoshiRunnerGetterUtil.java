@@ -240,66 +240,6 @@ public class PoshiRunnerGetterUtil {
 		return className + "." + fileExtension;
 	}
 
-	public static Object getMethodReturnValue(
-			List<String> args, String className, String methodName,
-			Object object)
-		throws Exception {
-
-		if (!className.equals("selenium")) {
-			if (!className.contains(".")) {
-				className = getUtilityClassName(className);
-			}
-			else {
-				if (!isValidUtilityClass(className)) {
-					throw new IllegalArgumentException(
-						className + " is not a valid class name");
-				}
-			}
-		}
-
-		Object[] parameters = new Object[args.size()];
-
-		for (int i = 0; i < args.size(); i++) {
-			String arg = args.get(i);
-
-			Matcher matcher = _variablePattern.matcher(arg);
-
-			Object parameter = null;
-
-			if (matcher.matches()) {
-				parameter = PoshiRunnerVariablesUtil.getValueFromCommandMap(
-					matcher.group(1));
-			}
-			else {
-				parameter = PoshiRunnerVariablesUtil.replaceCommandVars(arg);
-			}
-
-			if (className.endsWith("MathUtil") &&
-				(parameter instanceof String)) {
-
-				parameter = GetterUtil.getInteger((String)parameter);
-			}
-			else if (className.endsWith("StringUtil")) {
-				parameter = String.valueOf(parameter);
-			}
-
-			parameters[i] = parameter;
-		}
-
-		Object returnObject = null;
-
-		if (object != null) {
-			returnObject = ExternalMethod.execute(
-				methodName, object, parameters);
-		}
-		else {
-			returnObject = ExternalMethod.execute(
-				className, methodName, parameters);
-		}
-
-		return returnObject;
-	}
-
 	public static String getNamespacedClassNameFromNamespacedClassCommandName(
 		String namespacedClassCommandName) {
 
@@ -508,56 +448,6 @@ public class PoshiRunnerGetterUtil {
 			simpleClassName + " is not a valid simple class name");
 	}
 
-	public static Object getVarMethodValue(String expression, String namespace)
-		throws Exception {
-
-		List<String> args = new ArrayList<>();
-
-		int x = expression.indexOf("(");
-		int y = expression.lastIndexOf(")");
-
-		if ((x + 1) < y) {
-			String parameterString = expression.substring(x + 1, y);
-
-			Matcher parameterMatcher = _parameterPattern.matcher(
-				parameterString);
-
-			while (parameterMatcher.find()) {
-				String parameterValue = parameterMatcher.group();
-
-				if (parameterValue.startsWith("'") &&
-					parameterValue.endsWith("'")) {
-
-					parameterValue = parameterValue.substring(
-						1, parameterValue.length() - 1);
-				}
-				else if (parameterValue.contains("#")) {
-					parameterValue = PoshiRunnerContext.getPathLocator(
-						parameterValue, namespace);
-				}
-
-				if (parameterValue.contains("\'")) {
-					parameterValue = parameterValue.replaceAll("\\\\'", "'");
-				}
-
-				args.add(parameterValue);
-			}
-		}
-
-		y = expression.indexOf("#");
-
-		String className = expression.substring(0, y);
-		String methodName = expression.substring(y + 1, x);
-
-		Object object = null;
-
-		if (className.equals("selenium")) {
-			object = SeleniumUtil.getSelenium();
-		}
-
-		return getMethodReturnValue(args, className, methodName, object);
-	}
-
 	public static boolean isValidUtilityClass(String className) {
 		if (_utilityClassMap.containsValue(className)) {
 			return true;
@@ -570,8 +460,6 @@ public class PoshiRunnerGetterUtil {
 		Pattern.compile(
 			"((?<namespace>\\w+)\\.)?(?<className>\\w+)(\\#(?<commandName>" +
 				"(\\w+(\\-\\w+)*|\\$\\{\\w+\\}|\\w+|\\s*\\w+)*))?");
-	private static final Pattern _parameterPattern = Pattern.compile(
-		"('([^'\\\\]|\\\\.)*'|[^',\\s]+)");
 	private static final List<String> _reservedTags = Arrays.asList(
 		new String[] {
 			"and", "arg", "body", "case", "command", "condition", "contains",
@@ -584,8 +472,6 @@ public class PoshiRunnerGetterUtil {
 	private static final Pattern _tagPattern = Pattern.compile("<[a-z\\-]+");
 	private static final Map<String, String > _utilityClassMap =
 		new TreeMap<>();
-	private static final Pattern _variablePattern = Pattern.compile(
-		"\\$\\{([^}]*)\\}");
 
 	static {
 		try {

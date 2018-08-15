@@ -14,9 +14,14 @@
 
 package com.liferay.poshi.runner;
 
+import com.liferay.poshi.runner.selenium.SeleniumUtil;
+import com.liferay.poshi.runner.util.ExternalMethod;
+import com.liferay.poshi.runner.util.GetterUtil;
 import com.liferay.poshi.runner.util.StringUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -28,24 +33,24 @@ import java.util.regex.Pattern;
  */
 public class PoshiRunnerVariablesUtil {
 
-	public static void clear() {
-		_commandMap.clear();
-		_commandMapStack.clear();
-		_executeMap.clear();
-		_staticMap.clear();
-	}
+	// public static void clear() {
+	// 	_commandMap.clear();
+	// 	_commandMapStack.clear();
+	// 	_executeMap.clear();
+	// 	_staticMap.clear();
+	// }
 
-	public static boolean containsKeyInCommandMap(String key) {
-		return _commandMap.containsKey(replaceCommandVars(key));
-	}
+	// public static boolean containsKeyInCommandMap(String key) {
+	// 	return _commandMap.containsKey(replaceCommandVars(key));
+	// }
 
-	public static boolean containsKeyInExecuteMap(String key) {
-		return _executeMap.containsKey(replaceCommandVars(key));
-	}
+	// public static boolean containsKeyInExecuteMap(String key) {
+	// 	return _executeMap.containsKey(replaceCommandVars(key));
+	// }
 
-	public static boolean containsKeyInStaticMap(String key) {
-		return _staticMap.containsKey(replaceCommandVars(key));
-	}
+	// public static boolean containsKeyInStaticMap(String key) {
+	// 	return _staticMap.containsKey(replaceCommandVars(key));
+	// }
 
 	public static String getReplacedCommandVarsString(String token)
 		throws Exception {
@@ -57,6 +62,19 @@ public class PoshiRunnerVariablesUtil {
 		Object tokenObject = replaceCommandVars(token);
 
 		return tokenObject.toString();
+	}
+
+	/* NEW */
+	public static String getValueFromMapAsString(
+		String key, Map<String, Object> map) {
+
+		if (map.containsKey(key)) {
+			Object object = map.get(key);
+
+			return object.toString();
+		}
+
+		return null;
 	}
 
 	public static String getStringFromCommandMap(String key) {
@@ -89,17 +107,17 @@ public class PoshiRunnerVariablesUtil {
 		return null;
 	}
 
-	public static Object getValueFromCommandMap(String key) {
-		return _commandMap.get(replaceCommandVars(key));
-	}
+	// public static Object getValueFromCommandMap(String key) {
+	// 	return _commandMap.get(replaceCommandVars(key));
+	// }
 
-	public static Object getValueFromExecuteMap(String key) {
-		return _executeMap.get(replaceCommandVars(key));
-	}
+	// public static Object getValueFromExecuteMap(String key) {
+	// 	return _executeMap.get(replaceCommandVars(key));
+	// }
 
-	public static Object getValueFromStaticMap(String key) {
-		return _staticMap.get(replaceCommandVars(key));
-	}
+	// public static Object getValueFromStaticMap(String key) {
+	// 	return _staticMap.get(replaceCommandVars(key));
+	// }
 
 	public static void popCommandMap() {
 		_commandMap = _commandMapStack.pop();
@@ -158,6 +176,29 @@ public class PoshiRunnerVariablesUtil {
 		}
 	}
 
+	/* NEW */
+	public static Object resolveReferences(
+		String token, Map<String, Object> map) {
+
+		Matcher matcher = _pattern.matcher(token);
+
+		if (matcher.matches() && map.containsKey(matcher.group(1))) {
+			// TODO
+			return getValueFromCommandMap(matcher.group(1));
+		}
+
+		matcher.reset();
+
+		while (matcher.find() && map.containsKey(matcher.group(1))) {
+			// TODO
+			String varValue = getStringFromCommandMap(matcher.group(1));
+
+			token = StringUtil.replace(token, matcher.group(), varValue);
+		}
+
+		return token;
+	}
+
 	public static Object replaceCommandVars(String token) {
 		Matcher matcher = _pattern.matcher(token);
 
@@ -212,11 +253,111 @@ public class PoshiRunnerVariablesUtil {
 		return token;
 	}
 
-	private static Map<String, Object> _commandMap = new HashMap<>();
-	private static final Stack<Map<String, Object>> _commandMapStack =
-		new Stack<>();
-	private static Map<String, Object> _executeMap = new HashMap<>();
+	public static Object getMethodReturnValue(
+			List<String> args, String className, String methodName,
+			Object object, Map<String, Object> varMap)
+		throws Exception {
+
+		if (!className.equals("selenium")) {
+			if (!className.contains(".")) {
+				className =
+					PoshiRunnerGetterUtil.getUtilityClassName(className);
+			}
+			else {
+				if (!PoshiRunnerGetterUtil.isValidUtilityClass(className)) {
+					throw new IllegalArgumentException(
+						className + " is not a valid class name");
+				}
+			}
+		}
+
+		Object[] parameters = new Object[args.size()];
+
+		for (int i = 0; i < args.size(); i++) {
+			String arg = args.get(i);
+
+			Object parameter = resolveReferences(arg, varMap);
+
+			if (className.endsWith("MathUtil") &&
+				(parameter instanceof String)) {
+
+				parameter = GetterUtil.getInteger((String)parameter);
+			}
+			else if (className.endsWith("StringUtil")) {
+				parameter = String.valueOf(parameter);
+			}
+
+			parameters[i] = parameter;
+		}
+
+		Object returnObject = null;
+
+		if (object != null) {
+			returnObject = ExternalMethod.execute(
+				methodName, object, parameters);
+		}
+		else {
+			returnObject = ExternalMethod.execute(
+				className, methodName, parameters);
+		}
+
+		return returnObject;
+	}
+
+	public static Object getVarMethodValue(
+			String expression, String namespace, Map<String, Object> varMap)
+		throws Exception {
+
+		List<String> args = new ArrayList<>();
+
+		int x = expression.indexOf("(");
+		int y = expression.lastIndexOf(")");
+
+		if ((x + 1) < y) {
+			String parameterString = expression.substring(x + 1, y);
+
+			Matcher parameterMatcher = _parameterPattern.matcher(
+				parameterString);
+
+			while (parameterMatcher.find()) {
+				String parameterValue = parameterMatcher.group();
+
+				if (parameterValue.startsWith("'") &&
+					parameterValue.endsWith("'")) {
+
+					parameterValue = parameterValue.substring(
+						1, parameterValue.length() - 1);
+				}
+				else if (parameterValue.contains("#")) {
+					parameterValue = PoshiRunnerContext.getPathLocator(
+						parameterValue, namespace);
+				}
+
+				if (parameterValue.contains("\'")) {
+					parameterValue = parameterValue.replaceAll("\\\\'", "'");
+				}
+
+				args.add(parameterValue);
+			}
+		}
+
+		y = expression.indexOf("#");
+
+		String className = expression.substring(0, y);
+		String methodName = expression.substring(y + 1, x);
+
+		Object object = null;
+
+		if (className.equals("selenium")) {
+			object = SeleniumUtil.getSelenium();
+		}
+
+		return getMethodReturnValue(
+			args, className, methodName, object, varMap);
+	}
+
+	private static final Pattern _parameterPattern = Pattern.compile(
+		"('([^'\\\\]|\\\\.)*'|[^',\\s]+)");
 	private static final Pattern _pattern = Pattern.compile("\\$\\{([^}]*)\\}");
-	private static final Map<String, Object> _staticMap = new HashMap<>();
 
 }
