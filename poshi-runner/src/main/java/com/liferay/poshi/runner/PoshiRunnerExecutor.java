@@ -150,6 +150,8 @@ public class PoshiRunnerExecutor {
 		for (Element childElement : childElements) {
 			String childElementName = childElement.getName();
 
+			_historyNode.insert(childElement);
+
 			if (childElementName.equals("echo") ||
 				childElementName.equals("description")) {
 
@@ -371,6 +373,8 @@ public class PoshiRunnerExecutor {
 		}
 
 		PoshiRunnerStackTraceUtil.setCurrentElement(executeElement);
+
+		_historyNode = _historyNode.getLastChildNode();
 
 		List<Element> executeVarElements = executeElement.elements("var");
 
@@ -637,6 +641,8 @@ public class PoshiRunnerExecutor {
 		throws Exception {
 
 		PoshiRunnerStackTraceUtil.setCurrentElement(executeElement);
+
+		_historyNode = _historyNode.getLastChildNode();
 
 		String namespacedClassCommandName = executeElement.attributeValue(
 			macroType);
@@ -926,6 +932,8 @@ public class PoshiRunnerExecutor {
 
 		PoshiRunnerStackTraceUtil.setCurrentElement(executeElement);
 
+		_historyNode = _historyNode.getLastChildNode();
+
 		String namespacedClassCommandName = executeElement.attributeValue(
 			"test-case");
 
@@ -941,6 +949,17 @@ public class PoshiRunnerExecutor {
 		runTestCaseCommandElement(commandElement, namespacedClassCommandName);
 
 		PoshiRunnerStackTraceUtil.popStackTrace();
+	}
+
+	public void runTestPhaseElement(
+			Element element, String namespacedClassCommandName)
+		throws Exception {
+
+		_historyNode.insert(element);
+
+		_historyNode = _historyNode.getLastChildNode();
+
+		runTestCaseCommandElement(element, namespacedClassCommandName);
 	}
 
 	public void runWhileElement(Element element) throws Exception {
@@ -1066,7 +1085,7 @@ public class PoshiRunnerExecutor {
 
 	private Element _functionExecuteElement;
 	private String _functionWarningMessage;
-	private final PoshiExecutionHistoryNode _historyNode;
+	private PoshiExecutionHistoryNode _historyNode;
 	private final Pattern _locatorKeyPattern = Pattern.compile("\\S#\\S");
 	private Object _macroReturnValue;
 	private Object _returnObject;
