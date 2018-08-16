@@ -50,6 +50,10 @@ import org.openqa.selenium.StaleElementReferenceException;
  */
 public class PoshiRunnerExecutor {
 
+	public PoshiRunnerExecutor(Element element) {
+		_historyNode = new PoshiExecutionHistoryNode(element);
+	}
+
 	public boolean evaluateConditionalElement(Element element)
 		throws Exception {
 
@@ -1062,6 +1066,7 @@ public class PoshiRunnerExecutor {
 
 	private Element _functionExecuteElement;
 	private String _functionWarningMessage;
+	private final PoshiExecutionHistoryNode _historyNode;
 	private final Pattern _locatorKeyPattern = Pattern.compile("\\S#\\S");
 	private Object _macroReturnValue;
 	private Object _returnObject;
