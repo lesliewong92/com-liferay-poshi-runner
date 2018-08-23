@@ -21,6 +21,7 @@ import com.liferay.poshi.runner.selenium.SeleniumUtil;
 import com.liferay.poshi.runner.util.FileUtil;
 import com.liferay.poshi.runner.util.GetterUtil;
 import com.liferay.poshi.runner.util.PropsValues;
+import com.liferay.poshi.runner.util.StringUtil;
 import com.liferay.poshi.runner.util.TableUtil;
 import com.liferay.poshi.runner.util.Validator;
 import com.liferay.poshi.runner.var.type.BaseTable;
@@ -39,6 +40,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dom4j.Element;
 
 import org.openqa.selenium.StaleElementReferenceException;
@@ -58,6 +61,8 @@ public class PoshiRunnerExecutor {
 		boolean conditionalValue = false;
 
 		String elementName = element.getName();
+
+		_logger.traceEntry("Evaluating conditional element {}", elementName);
 
 		if (elementName.equals("and")) {
 			List<Element> andElements = element.elements();
@@ -137,7 +142,9 @@ public class PoshiRunnerExecutor {
 			conditionalValue = !evaluateConditionalElement(notElement);
 		}
 
-		return conditionalValue;
+		return _logger.traceExit(
+			"Evaluated conditional element " + elementName + " with value {}" ,
+			conditionalValue);
 	}
 
 	public void parseElement(Element element) throws Exception {
@@ -204,6 +211,9 @@ public class PoshiRunnerExecutor {
 			else if (childElementName.equals("while")) {
 				runWhileElement(childElement);
 			}
+
+			// _logger.traceExit(
+			// 	"Completed running element:'{}'", childElementName);
 		}
 	}
 
@@ -231,6 +241,9 @@ public class PoshiRunnerExecutor {
 
 		PoshiRunnerVariablesUtil.putIntoCommandMap(varName, varValue);
 
+		_logger.trace(
+			"Setting variable '{}' with value '{}'", varName, varValue);
+
 		String currentFilePath = PoshiRunnerStackTraceUtil.getCurrentFilePath();
 
 		if (currentFilePath.contains(".macro") ||
@@ -253,8 +266,12 @@ public class PoshiRunnerExecutor {
 			message = element.getText();
 		}
 
-		System.out.println(
+		message = StringUtil.valueOf(
 			PoshiRunnerVariablesUtil.replaceCommandVars(message));
+
+		_logger.trace("Printing '{}' to console", message);
+
+		System.out.println(message);
 	}
 
 	public void runExecuteVarElement(Element element) throws Exception {
@@ -290,6 +307,10 @@ public class PoshiRunnerExecutor {
 		}
 
 		PoshiRunnerVariablesUtil.putIntoExecuteMap(varName, varValue);
+
+		_logger.trace(
+			"Setting variable '" + varName + "' with value '" +
+				StringUtil.valueOf(varValue) + "'");
 	}
 
 	public void runFailElement(Element element) throws Exception {
@@ -344,6 +365,10 @@ public class PoshiRunnerExecutor {
 	public void runFunctionCommandElement(Element commandElement)
 		throws Exception {
 
+		String commandName = commandElement.attributeValue("name");
+
+		_logger.traceEntry("Entering function '{}'", commandName);
+
 		PoshiRunnerStackTraceUtil.setCurrentElement(commandElement);
 
 		PoshiRunnerVariablesUtil.pushCommandMap();
@@ -356,6 +381,8 @@ public class PoshiRunnerExecutor {
 		}
 		finally {
 			PoshiRunnerVariablesUtil.popCommandMap();
+
+			_logger.traceExit("Exiting function '{}'", commandName);
 		}
 	}
 
@@ -601,6 +628,8 @@ public class PoshiRunnerExecutor {
 			Element commandElement, String namespacedClassCommandName)
 		throws Exception {
 
+		_logger.traceEntry("Entering macro '{}'", namespacedClassCommandName);
+
 		PoshiRunnerStackTraceUtil.setCurrentElement(commandElement);
 
 		String classCommandName =
@@ -627,6 +656,8 @@ public class PoshiRunnerExecutor {
 		parseElement(commandElement);
 
 		PoshiRunnerVariablesUtil.popCommandMap();
+
+		_logger.traceExit("Exit macro '{}'", namespacedClassCommandName);
 	}
 
 	public void runMacroExecuteElement(Element executeElement, String macroType)
@@ -748,6 +779,10 @@ public class PoshiRunnerExecutor {
 
 		if (!PoshiRunnerVariablesUtil.containsKeyInExecuteMap(varName)) {
 			PoshiRunnerVariablesUtil.putIntoExecuteMap(varName, varValue);
+
+			_logger.trace(
+				"Setting variable '" + varName + "' with value '" +
+					StringUtil.valueOf(varValue) + "'");
 		}
 
 		String currentFilePath = PoshiRunnerStackTraceUtil.getCurrentFilePath();
@@ -768,6 +803,8 @@ public class PoshiRunnerExecutor {
 		List<Class<?>> parameterClasses = new ArrayList<>();
 
 		String selenium = executeElement.attributeValue("selenium");
+
+		_logger.traceEntry("Executing selenium command '{}'", selenium);
 
 		int parameterCount = PoshiRunnerContext.getSeleniumParameterCount(
 			selenium);
@@ -882,6 +919,9 @@ public class PoshiRunnerExecutor {
 				throw new Exception(throwable.getMessage(), e1);
 			}
 		}
+		finally {
+			_logger.traceExit("Exiting selenium command '{}'", selenium);
+		}
 	}
 
 	public void runTaskElement(Element element) throws Exception {
@@ -893,6 +933,8 @@ public class PoshiRunnerExecutor {
 	public void runTestCaseCommandElement(
 			Element element, String namespacedClassCommandName)
 		throws Exception {
+
+		_logger.entry();
 
 		PoshiRunnerStackTraceUtil.setCurrentElement(element);
 
@@ -915,6 +957,8 @@ public class PoshiRunnerExecutor {
 		parseElement(element);
 
 		PoshiRunnerVariablesUtil.popCommandMap();
+
+		_logger.exit();
 	}
 
 	public void runTestCaseExecuteElement(Element executeElement)
@@ -1063,6 +1107,8 @@ public class PoshiRunnerExecutor {
 	private Element _functionExecuteElement;
 	private String _functionWarningMessage;
 	private final Pattern _locatorKeyPattern = Pattern.compile("\\S#\\S");
+	private static final Logger _logger = LogManager.getLogger(
+		PoshiRunnerExecutor.class);
 	private Object _macroReturnValue;
 	private Object _returnObject;
 	private final Pattern _variablePattern = Pattern.compile(
