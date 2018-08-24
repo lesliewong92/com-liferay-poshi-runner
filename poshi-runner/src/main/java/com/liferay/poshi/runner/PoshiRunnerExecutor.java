@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import org.dom4j.Element;
 
 import org.openqa.selenium.StaleElementReferenceException;
@@ -62,7 +63,7 @@ public class PoshiRunnerExecutor {
 
 		String elementName = element.getName();
 
-		_logger.traceEntry("Evaluating conditional element {}", elementName);
+		_logger.traceEntry("Evaluating conditional element '{}''", elementName);
 
 		if (elementName.equals("and")) {
 			List<Element> andElements = element.elements();
@@ -106,7 +107,6 @@ public class PoshiRunnerExecutor {
 		else if (elementName.equals("equals")) {
 			String arg1 = PoshiRunnerVariablesUtil.getReplacedCommandVarsString(
 				element.attributeValue("arg1"));
-
 			String arg2 = PoshiRunnerVariablesUtil.getReplacedCommandVarsString(
 				element.attributeValue("arg2"));
 
@@ -143,7 +143,8 @@ public class PoshiRunnerExecutor {
 		}
 
 		return _logger.traceExit(
-			"Evaluated conditional element " + elementName + " with value {}" ,
+			"Evaluated conditional element '" + elementName +
+				"' with value '{}'",
 			conditionalValue);
 	}
 
@@ -213,7 +214,8 @@ public class PoshiRunnerExecutor {
 			}
 
 			// _logger.traceExit(
-			// 	"Completed running element:'{}'", childElementName);
+			// "Completed running element:'{}'", childElementName);
+
 		}
 	}
 
@@ -242,7 +244,7 @@ public class PoshiRunnerExecutor {
 		PoshiRunnerVariablesUtil.putIntoCommandMap(varName, varValue);
 
 		_logger.trace(
-			"Setting variable '{}' with value '{}'", varName, varValue);
+			"Setting variable '{}' to value '{}'", varName, varValue);
 
 		String currentFilePath = PoshiRunnerStackTraceUtil.getCurrentFilePath();
 
@@ -309,8 +311,8 @@ public class PoshiRunnerExecutor {
 		PoshiRunnerVariablesUtil.putIntoExecuteMap(varName, varValue);
 
 		_logger.trace(
-			"Setting variable '" + varName + "' with value '" +
-				StringUtil.valueOf(varValue) + "'");
+			"Setting variable '{}' to value '{}'", varName,
+			StringUtil.valueOf(varValue));
 	}
 
 	public void runFailElement(Element element) throws Exception {
@@ -337,6 +339,9 @@ public class PoshiRunnerExecutor {
 			String list = PoshiRunnerVariablesUtil.getReplacedCommandVarsString(
 				element.attributeValue("list"));
 
+			_logger.trace(
+				"Iterating over list {} with param '{}'", list, paramName);
+
 			String[] paramValues = list.split(",");
 
 			for (String paramValue : paramValues) {
@@ -345,11 +350,16 @@ public class PoshiRunnerExecutor {
 
 				parseElement(element);
 			}
+
+			_logger.trace("Exit list iteration");
 		}
 		else if (element.attributeValue("table") != null) {
 			BaseTable<?> table =
 				(BaseTable<?>)PoshiRunnerVariablesUtil.replaceCommandVars(
 					element.attributeValue("table"));
+
+			_logger.trace(
+				"Iterating over table {} with param '{}'", table, paramName);
 
 			Iterator<?> iter = table.iterator();
 
@@ -359,6 +369,8 @@ public class PoshiRunnerExecutor {
 
 				parseElement(element);
 			}
+
+			_logger.trace("Exit table iteration");
 		}
 	}
 
@@ -538,7 +550,7 @@ public class PoshiRunnerExecutor {
 
 			for (Element executeArgElement : executeArgElements) {
 				arguments.add(
-					PoshiRunnerVariablesUtil.getReplacedCommandVarsString(
+					PoshiRunnerVariablesUtil .getReplacedCommandVarsString(
 						executeArgElement.attributeValue("value")));
 			}
 
@@ -546,8 +558,9 @@ public class PoshiRunnerExecutor {
 				"args", arguments.toArray(new String[arguments.size()]));
 		}
 
-		String fileName = PoshiRunnerVariablesUtil.getReplacedCommandVarsString(
-			executeElement.attributeValue("groovy-script"));
+		String fileName =
+			PoshiRunnerVariablesUtil .getReplacedCommandVarsString(
+				executeElement.attributeValue("groovy-script"));
 
 		String fileSeparator = FileUtil.getSeparator();
 
@@ -555,6 +568,8 @@ public class PoshiRunnerExecutor {
 			LiferaySeleniumHelper.getSourceDirFilePath(
 				fileSeparator + PropsValues.TEST_DEPENDENCIES_DIR_NAME +
 					fileSeparator + fileName));
+
+		_logger.trace("Executing groovy file '{}'", fileName);
 
 		Object result = groovyScriptEngine.run(fileName, binding);
 
@@ -567,6 +582,8 @@ public class PoshiRunnerExecutor {
 	}
 
 	public void runIfElement(Element element) throws Exception {
+		_logger.traceEntry("Entering conditional statement");
+
 		PoshiRunnerStackTraceUtil.setCurrentElement(element);
 
 		List<Element> ifChildElements = element.elements();
@@ -575,10 +592,8 @@ public class PoshiRunnerExecutor {
 
 		boolean condition = evaluateConditionalElement(ifConditionElement);
 
-		boolean conditionRun = false;
-
 		if (condition) {
-			conditionRun = true;
+			_logger.trace("If-condition fulfilled. Entering 'then' element");
 
 			Element ifThenElement = element.element("then");
 
@@ -586,10 +601,16 @@ public class PoshiRunnerExecutor {
 
 			parseElement(ifThenElement);
 		}
-		else if (element.element("elseif") != null) {
+		else {
+			_logger.trace("If condition not fulfilled");
+		}
+
+		if ((element.element("elseif") != null) && !condition) {
 			List<Element> elseIfElements = element.elements("elseif");
 
 			for (Element elseIfElement : elseIfElements) {
+				_logger.trace("Evaluating Else-If conditional statement");
+
 				PoshiRunnerStackTraceUtil.setCurrentElement(elseIfElement);
 
 				List<Element> elseIfChildElements = elseIfElement.elements();
@@ -599,7 +620,8 @@ public class PoshiRunnerExecutor {
 				condition = evaluateConditionalElement(elseIfConditionElement);
 
 				if (condition) {
-					conditionRun = true;
+					_logger.trace(
+						"Else-If condition fulfilled. Entering 'then' element");
 
 					Element elseIfThenElement = elseIfElement.element("then");
 
@@ -608,20 +630,29 @@ public class PoshiRunnerExecutor {
 
 					parseElement(elseIfThenElement);
 
+					_logger.trace("Exiting Else-If 'then' element");
+
 					break;
 				}
+
+				_logger.trace("Else-If condition not fulfilled");
 			}
 		}
 
-		if ((element.element("else") != null) && !conditionRun) {
-			conditionRun = true;
+		if ((element.element("else") != null) && !condition) {
+			_logger.trace(
+				"No conditions were fulfilled. Entering 'else' element");
 
 			Element elseElement = element.element("else");
 
 			PoshiRunnerStackTraceUtil.setCurrentElement(elseElement);
 
 			parseElement(elseElement);
+
+			_logger.trace("Exiting 'else' element");
 		}
+
+		_logger.traceExit("Exiting conditional statement");
 	}
 
 	public void runMacroCommandElement(
@@ -781,8 +812,8 @@ public class PoshiRunnerExecutor {
 			PoshiRunnerVariablesUtil.putIntoExecuteMap(varName, varValue);
 
 			_logger.trace(
-				"Setting variable '" + varName + "' with value '" +
-					StringUtil.valueOf(varValue) + "'");
+				"Setting variable '{}' to value '{}'", varName,
+				StringUtil.valueOf(varValue));
 		}
 
 		String currentFilePath = PoshiRunnerStackTraceUtil.getCurrentFilePath();
@@ -934,7 +965,7 @@ public class PoshiRunnerExecutor {
 			Element element, String namespacedClassCommandName)
 		throws Exception {
 
-		_logger.entry();
+		_logger.traceEntry();
 
 		PoshiRunnerStackTraceUtil.setCurrentElement(element);
 
@@ -958,7 +989,7 @@ public class PoshiRunnerExecutor {
 
 		PoshiRunnerVariablesUtil.popCommandMap();
 
-		_logger.exit();
+		_logger.traceExit();
 	}
 
 	public void runTestCaseExecuteElement(Element executeElement)
@@ -986,6 +1017,8 @@ public class PoshiRunnerExecutor {
 	public void runWhileElement(Element element) throws Exception {
 		PoshiRunnerStackTraceUtil.setCurrentElement(element);
 
+		_logger.traceEntry("Entering while loop");
+
 		int maxIterations = 15;
 
 		if (element.attributeValue("max-iterations") != null) {
@@ -999,15 +1032,19 @@ public class PoshiRunnerExecutor {
 
 		Element thenElement = element.element("then");
 
-		for (int i = 0; i < maxIterations; i++) {
-			if (!evaluateConditionalElement(conditionElement)) {
-				break;
-			}
+		int count = 0;
+
+		while ((count < maxIterations) &&
+			   evaluateConditionalElement(conditionElement)) {
 
 			PoshiRunnerStackTraceUtil.setCurrentElement(thenElement);
 
 			parseElement(thenElement);
+
+			count++;
 		}
+
+		_logger.traceExit("Exiting while loop on iteration {}", count);
 	}
 
 	private Object _getVarValue(Element element) throws Exception {
@@ -1104,11 +1141,12 @@ public class PoshiRunnerExecutor {
 		return null;
 	}
 
+	private static final Logger _logger = LogManager.getLogger(
+		PoshiRunnerExecutor.class);
+
 	private Element _functionExecuteElement;
 	private String _functionWarningMessage;
 	private final Pattern _locatorKeyPattern = Pattern.compile("\\S#\\S");
-	private static final Logger _logger = LogManager.getLogger(
-		PoshiRunnerExecutor.class);
 	private Object _macroReturnValue;
 	private Object _returnObject;
 	private final Pattern _variablePattern = Pattern.compile(
