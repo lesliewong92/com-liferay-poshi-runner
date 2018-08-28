@@ -17,6 +17,7 @@ package com.liferay.poshi.runner;
 import com.liferay.poshi.runner.selenium.LiferaySeleniumHelper;
 import com.liferay.poshi.runner.selenium.SeleniumUtil;
 import com.liferay.poshi.runner.util.PropsValues;
+import com.liferay.poshi.runner.util.Validator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,6 +69,11 @@ public class PoshiRunner {
 			poshiTestFileIncludes,
 			PoshiRunnerGetterUtil.getCanonicalPath(
 				PropsValues.TEST_BASE_DIR_NAME));
+
+		if (Validator.isNotNull(PropsValues.TEST_SUBREPO_DIRS)) {
+			PoshiRunnerContext.readFiles(
+				poshiTestFileIncludes, PropsValues.TEST_SUBREPO_DIRS);
+		}
 
 		for (String testName : testNames) {
 			PoshiRunnerValidation.validate(testName);
