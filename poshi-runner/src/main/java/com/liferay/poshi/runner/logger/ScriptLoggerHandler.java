@@ -34,7 +34,7 @@ import org.dom4j.Element;
 /**
  * @author Michael Hashimoto
  */
-public final class XMLLoggerHandler {
+public final class ScriptLoggerHandler {
 
 	public static void generateXMLLog(String namespacedClassCommandName)
 		throws PoshiRunnerLoggerException {
@@ -169,7 +169,7 @@ public final class XMLLoggerHandler {
 
 		sb.append(
 			_getLineNumberItemText(
-				PoshiRunnerGetterUtil.getLineNumber(element)));
+				PoshiRunnerGetterUtil.getElementLineNumber(element)));
 
 		List<Element> childElements = element.elements();
 
@@ -679,7 +679,7 @@ public final class XMLLoggerHandler {
 		for (Element childElement : childElements) {
 			loggerElement.addChildLoggerElement(
 				_getLineNumberItem(
-					PoshiRunnerGetterUtil.getLineNumber(childElement)));
+					PoshiRunnerGetterUtil.getElementLineNumber(childElement)));
 			loggerElement.addChildLoggerElement(
 				_getLineContainerLoggerElement(childElement));
 		}
