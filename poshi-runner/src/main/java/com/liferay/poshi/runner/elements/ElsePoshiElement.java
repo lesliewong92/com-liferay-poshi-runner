@@ -47,6 +47,11 @@ public class ElsePoshiElement extends ThenPoshiElement {
 	}
 
 	@Override
+	public String getLogStatement() {
+		return getBlockName();
+	}
+
+	@Override
 	public String toPoshiScript() {
 		return createPoshiScriptBlock(getPoshiNodes());
 	}

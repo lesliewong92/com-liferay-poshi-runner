@@ -47,6 +47,11 @@ public class IfPoshiElement extends PoshiElement {
 	}
 
 	@Override
+	public String getLogStatement() {
+		return getBlockName();
+	}
+
+	@Override
 	public void parsePoshiScript(String poshiScript) {
 		for (String poshiScriptSnippet :
 				getPoshiScriptSnippets(poshiScript, false)) {
