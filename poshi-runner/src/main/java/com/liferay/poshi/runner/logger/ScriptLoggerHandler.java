@@ -127,6 +127,8 @@ public final class ScriptLoggerHandler {
 				childContainerLoggerElement);
 
 			_xmlLogLoggerElement.addChildLoggerElement(headerLoggerElement);
+
+			System.out.println(getXMLLogText());
 		}
 		catch (Throwable t) {
 			throw new PoshiRunnerLoggerException(t.getMessage(), t);

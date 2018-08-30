@@ -66,7 +66,7 @@ public abstract class PoshiElement
 	}
 
 	public String getLogStatement() {
-		return toPoshiScript();
+		return getPoshiScript();
 	}
 
 	@Override
