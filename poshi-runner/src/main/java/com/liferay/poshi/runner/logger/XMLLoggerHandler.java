@@ -17,10 +17,7 @@ package com.liferay.poshi.runner.logger;
 import com.liferay.poshi.runner.PoshiRunnerContext;
 import com.liferay.poshi.runner.PoshiRunnerGetterUtil;
 import com.liferay.poshi.runner.PoshiRunnerStackTraceUtil;
-import com.liferay.poshi.runner.elements.PoshiElement;
-import com.liferay.poshi.runner.elements.PoshiElementAttribute;
 import com.liferay.poshi.runner.exception.PoshiRunnerLoggerException;
-import com.liferay.poshi.runner.util.HtmlUtil;
 import com.liferay.poshi.runner.util.PropsValues;
 import com.liferay.poshi.runner.util.Validator;
 
@@ -477,6 +474,7 @@ public final class XMLLoggerHandler {
 		StringBuilder sb = new StringBuilder();
 
 		// =====================================================================
+
 		sb.append(_getLineItemText("misc", "&lt;"));
 		sb.append(_getLineItemText("action-type", element.getName()));
 
@@ -515,7 +513,6 @@ public final class XMLLoggerHandler {
 		// else {
 		// 	sb.append(_getLineItemText("misc", "&gt;"));
 		// }
-
 
 		// if (Validator.isNotNull(innerText)) {
 		// 	sb.append(_getLineItemText("name", HtmlUtil.escape(innerText)));
