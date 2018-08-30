@@ -404,8 +404,10 @@ public final class ScriptLoggerHandler {
 				"onmouseover", "macroHover(this, true)");
 		}
 
+		String logStatement = element.getLogStatement();
+
 		lineContainerLoggerElement.setText(
-			_getLineItemText("name", element.getLogStatement()));
+			_getLineItemText("name", logStatement.trim()));
 
 		return lineContainerLoggerElement;
 	}
@@ -528,9 +530,6 @@ public final class ScriptLoggerHandler {
 
 		PoshiRunnerStackTraceUtil.popStackTrace();
 
-		loggerElement.addChildLoggerElement(
-			_getClosingLineContainerLoggerElement());
-
 		return loggerElement;
 	}
 
@@ -586,9 +585,6 @@ public final class ScriptLoggerHandler {
 			_getTestCaseCommandLoggerElement(namespacedClassCommandName));
 
 		PoshiRunnerStackTraceUtil.popStackTrace();
-
-		loggerElement.addChildLoggerElement(
-			_getClosingLineContainerLoggerElement());
 
 		return loggerElement;
 	}
