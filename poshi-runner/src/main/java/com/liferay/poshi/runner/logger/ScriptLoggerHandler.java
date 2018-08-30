@@ -18,9 +18,7 @@ import com.liferay.poshi.runner.PoshiRunnerContext;
 import com.liferay.poshi.runner.PoshiRunnerGetterUtil;
 import com.liferay.poshi.runner.PoshiRunnerStackTraceUtil;
 import com.liferay.poshi.runner.elements.PoshiElement;
-import com.liferay.poshi.runner.elements.PoshiElementAttribute;
 import com.liferay.poshi.runner.exception.PoshiRunnerLoggerException;
-import com.liferay.poshi.runner.util.HtmlUtil;
 import com.liferay.poshi.runner.util.PropsValues;
 import com.liferay.poshi.runner.util.Validator;
 
@@ -28,15 +26,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.dom4j.Attribute;
-import org.dom4j.Element;
-
 /**
  * @author Michael Hashimoto
  */
 public final class ScriptLoggerHandler {
 
-	public static void generateXMLLog(String namespacedClassCommandName)
+	public static void generateScriptLog(String namespacedClassCommandName)
 		throws PoshiRunnerLoggerException {
 
 		try {
@@ -83,8 +78,9 @@ public final class ScriptLoggerHandler {
 					getNamespaceFromNamespacedClassCommandName(
 						namespacedClassCommandName);
 
-			Element setUpElement = PoshiRunnerContext.getTestCaseCommandElement(
-				className + "#set-up", namespace);
+			PoshiElement setUpElement =
+				(PoshiElement)PoshiRunnerContext.getTestCaseCommandElement(
+					className + "#set-up", namespace);
 
 			if (setUpElement != null) {
 				PoshiRunnerStackTraceUtil.startStackTrace(
@@ -104,15 +100,17 @@ public final class ScriptLoggerHandler {
 					getClassCommandNameFromNamespacedClassCommandName(
 						namespacedClassCommandName);
 
+			PoshiElement testCaseElement =
+				(PoshiElement)PoshiRunnerContext.getTestCaseCommandElement(
+					classCommandName, namespace);
+
 			childContainerLoggerElement.addChildLoggerElement(
-				_getLoggerElementFromElement(
-					PoshiRunnerContext.getTestCaseCommandElement(
-						classCommandName, namespace)));
+				_getLoggerElementFromElement(testCaseElement));
 
 			PoshiRunnerStackTraceUtil.emptyStackTrace();
 
-			Element tearDownElement =
-				PoshiRunnerContext.getTestCaseCommandElement(
+			PoshiElement tearDownElement =
+				(PoshiElement)PoshiRunnerContext.getTestCaseCommandElement(
 					className + "#tear-down", namespace);
 
 			if (tearDownElement != null) {
@@ -143,7 +141,7 @@ public final class ScriptLoggerHandler {
 		return _xmlLogLoggerElement.toString();
 	}
 
-	public static void updateStatus(Element element, String status) {
+	public static void updateStatus(PoshiElement element, String status) {
 		PoshiRunnerStackTraceUtil.setCurrentElement(element);
 
 		String stackTrace = PoshiRunnerStackTraceUtil.getSimpleStackTrace();
@@ -158,7 +156,7 @@ public final class ScriptLoggerHandler {
 	}
 
 	private static LoggerElement _getBtnContainerLoggerElement(
-		Element element) {
+		PoshiElement element) {
 
 		LoggerElement btnContainerLoggerElement = new LoggerElement();
 
@@ -171,7 +169,7 @@ public final class ScriptLoggerHandler {
 			_getLineNumberItemText(
 				PoshiRunnerGetterUtil.getElementLineNumber(element)));
 
-		List<Element> childElements = element.elements();
+		List<PoshiElement> childElements = element.poshiElements();
 
 		if ((!childElements.isEmpty() && !_isExecutingFunction(element) &&
 			 !_isExecutingGroovyScript(element) &&
@@ -179,14 +177,6 @@ public final class ScriptLoggerHandler {
 			_isExecutingMacro(element) || _isExecutingTestCase(element)) {
 
 			sb.append(_getBtnItemText("btn-collapse"));
-		}
-
-		if (!childElements.isEmpty() &&
-			(_isExecutingFunction(element) ||
-			 _isExecutingGroovyScript(element) || _isExecutingMacro(element) ||
-			 _isExecutingTestCase(element) || _isExecutingMethod(element))) {
-
-			sb.append(_getBtnItemText("btn-var"));
 		}
 
 		btnContainerLoggerElement.setText(sb.toString());
@@ -213,21 +203,15 @@ public final class ScriptLoggerHandler {
 		return loggerElement.toString();
 	}
 
-	private static LoggerElement _getChildContainerLoggerElement()
-		throws Exception {
-
-		return _getChildContainerLoggerElement(null, null);
-	}
-
 	private static LoggerElement _getChildContainerLoggerElement(
-			Element element)
+			PoshiElement element)
 		throws Exception {
 
 		return _getChildContainerLoggerElement(element, null);
 	}
 
 	private static LoggerElement _getChildContainerLoggerElement(
-			Element element, Element rootElement)
+			PoshiElement element, PoshiElement rootElement)
 		throws Exception {
 
 		LoggerElement loggerElement = new LoggerElement();
@@ -239,18 +223,19 @@ public final class ScriptLoggerHandler {
 		loggerElement.setName("ul");
 
 		if (rootElement != null) {
-			List<Element> rootVarElements = rootElement.elements("var");
+			List<PoshiElement> rootVarElements = rootElement.poshiElements(
+				"var");
 
-			for (Element rootVarElement : rootVarElements) {
+			for (PoshiElement rootVarElement : rootVarElements) {
 				loggerElement.addChildLoggerElement(
 					_getVarLoggerElement(rootVarElement));
 			}
 		}
 
 		if (element != null) {
-			List<Element> childElements = element.elements();
+			List<PoshiElement> childElements = element.poshiElements();
 
-			for (Element childElement : childElements) {
+			for (PoshiElement childElement : childElements) {
 				String childElementName = childElement.getName();
 
 				if (childElementName.equals("description") ||
@@ -333,109 +318,66 @@ public final class ScriptLoggerHandler {
 		return loggerElement;
 	}
 
-	private static LoggerElement _getClosingLineContainerLoggerElement(
-		Element element) {
-
+	private static LoggerElement _getClosingLineContainerLoggerElement() {
 		LoggerElement closingLineContainerLoggerElement = new LoggerElement();
 
 		closingLineContainerLoggerElement.setClassName("line-container");
 		closingLineContainerLoggerElement.setName("div");
-
-		// StringBuilder sb = new StringBuilder();
-
-		// sb.append(_getLineItemText("misc", "&lt;/"));
-		// sb.append(_getLineItemText("action-type", element.getName()));
-		// sb.append(_getLineItemText("misc", "&gt;"));
 
 		closingLineContainerLoggerElement.setText("}");
 
 		return closingLineContainerLoggerElement;
 	}
 
-	private static LoggerElement _getConditionalLoggerElement(Element element)
-		throws Exception {
-
-		LoggerElement loggerElement = null;
-
-		if (_isExecutingFunction(element)) {
-			loggerElement = _getLineGroupLoggerElement(
-				"conditional-function", element);
-		}
-		else {
-			loggerElement = _getLineGroupLoggerElement("conditional", element);
-		}
-
-		List<Element> childElements = element.elements();
-
-		if (!childElements.isEmpty()) {
-			LoggerElement childContainerLoggerElement =
-				_getChildContainerLoggerElement();
-
-			for (Element childElement : childElements) {
-				childContainerLoggerElement.addChildLoggerElement(
-					_getConditionalLoggerElement(childElement));
-			}
-
-			loggerElement.addChildLoggerElement(childContainerLoggerElement);
-			loggerElement.addChildLoggerElement(
-				_getClosingLineContainerLoggerElement(element));
-		}
-
-		return loggerElement;
-	}
-
-	private static LoggerElement _getEchoLoggerElement(Element element) {
+	private static LoggerElement _getEchoLoggerElement(PoshiElement element) {
 		return _getLineGroupLoggerElement("echo", element);
 	}
 
-	private static LoggerElement _getFailLoggerElement(Element element) {
+	private static LoggerElement _getFailLoggerElement(PoshiElement element) {
 		return _getLineGroupLoggerElement(element);
 	}
 
-	private static LoggerElement _getForLoggerElement(Element element)
+	private static LoggerElement _getForLoggerElement(PoshiElement element)
 		throws Exception {
 
 		return _getLoggerElementFromElement(element);
 	}
 
 	private static LoggerElement _getFunctionExecuteLoggerElement(
-		Element element) {
+		PoshiElement element) {
 
 		return _getLineGroupLoggerElement("function", element);
 	}
 
 	private static LoggerElement _getGroovyScriptLoggerElement(
-		Element element) {
+		PoshiElement element) {
 
 		return _getLineGroupLoggerElement("groovy-script", element);
 	}
 
-	private static LoggerElement _getIfChildContainerLoggerElement(
-			Element element)
+	private static LoggerElement _getIfLoggerElement(PoshiElement element)
 		throws Exception {
 
-		LoggerElement loggerElement = _getChildContainerLoggerElement();
+		LoggerElement loggerElement = new LoggerElement();
 
-		List<Element> childElements = element.elements();
+		loggerElement.setName("div");
 
-		Element conditionElement = childElements.get(0);
+		LoggerElement ifLoggerElement = _getLineGroupLoggerElement(
+			"conditional", element);
 
-		loggerElement.addChildLoggerElement(
-			_getConditionalLoggerElement(conditionElement));
+		ifLoggerElement.addChildLoggerElement(
+			_getChildContainerLoggerElement(element.poshiElement("then")));
+		ifLoggerElement.addChildLoggerElement(
+			_getClosingLineContainerLoggerElement());
 
-		Element thenElement = element.element("then");
+		List<PoshiElement> elseIfElements = element.poshiElements("elseif");
 
-		loggerElement.addChildLoggerElement(
-			_getLoggerElementFromElement(thenElement));
-
-		List<Element> elseIfElements = element.elements("elseif");
-
-		for (Element elseIfElement : elseIfElements) {
+		for (PoshiElement elseIfElement : elseIfElements) {
 			loggerElement.addChildLoggerElement(
 				_getIfLoggerElement(elseIfElement));
 		}
 
-		Element elseElement = element.element("else");
+		PoshiElement elseElement = element.poshiElement("else");
 
 		if (elseElement != null) {
 			loggerElement.addChildLoggerElement(
@@ -445,22 +387,8 @@ public final class ScriptLoggerHandler {
 		return loggerElement;
 	}
 
-	private static LoggerElement _getIfLoggerElement(Element element)
-		throws Exception {
-
-		LoggerElement loggerElement = _getLineGroupLoggerElement(
-			"conditional", element);
-
-		loggerElement.addChildLoggerElement(
-			_getIfChildContainerLoggerElement(element));
-		loggerElement.addChildLoggerElement(
-			_getClosingLineContainerLoggerElement(element));
-
-		return loggerElement;
-	}
-
 	private static LoggerElement _getLineContainerLoggerElement(
-		Element element) {
+		PoshiElement element) {
 
 		LoggerElement lineContainerLoggerElement = new LoggerElement();
 
@@ -474,75 +402,20 @@ public final class ScriptLoggerHandler {
 				"onmouseover", "macroHover(this, true)");
 		}
 
-		StringBuilder sb = new StringBuilder();
-
-		// =====================================================================
-		sb.append(_getLineItemText("misc", "&lt;"));
-		sb.append(_getLineItemText("action-type", element.getName()));
-
-		List<Attribute> attributes = element.attributes();
-
-		for (Attribute attribute : attributes) {
-			String attributeName = attribute.getName();
-
-			if (attributeName.equals("line-number")) {
-				continue;
-			}
-
-			sb.append(_getLineItemText("tag-type", attributeName));
-			sb.append(_getLineItemText("misc", "="));
-			sb.append(_getLineItemText("misc quote", "\""));
-			sb.append(_getLineItemText("name", attribute.getValue()));
-			sb.append(_getLineItemText("misc quote", "\""));
-		}
-
-		List<Element> elements = element.elements();
-
-		String innerText = element.getText();
-
-		innerText = innerText.trim();
-
-		if (elements.isEmpty() && Validator.isNull(innerText)) {
-			sb.append(_getLineItemText("misc", "/&gt;"));
-		}
-		else {
-			sb.append(_getLineItemText("misc", "&gt;"));
-		}
-
-		// if (elements.isEmpty() && Validator.isNull(innerText)) {
-		// 	sb.append(_getLineItemText("misc", "/&gt;"));
-		// }
-		// else {
-		// 	sb.append(_getLineItemText("misc", "&gt;"));
-		// }
-
-
-		// if (Validator.isNotNull(innerText)) {
-		// 	sb.append(_getLineItemText("name", HtmlUtil.escape(innerText)));
-		// 	sb.append(_getLineItemText("misc", "&lt;/"));
-		// 	sb.append(_getLineItemText("action-type", element.getName()));
-		// 	sb.append(_getLineItemText("misc", "&gt;"));
-		// }
-		// =====================================================================
-
-		lineContainerLoggerElement.setText(sb.toString());
-
-		String elementName = element.getName();
-
-		if (elementName.equals("execute") && !elements.isEmpty()) {
-			lineContainerLoggerElement.addChildLoggerElement(
-				_getParameterContainerLoggerElement(element));
-		}
+		lineContainerLoggerElement.setText(
+			_getLineItemText("name", element.getLogStatement()));
 
 		return lineContainerLoggerElement;
 	}
 
-	private static LoggerElement _getLineGroupLoggerElement(Element element) {
+	private static LoggerElement _getLineGroupLoggerElement(
+		PoshiElement element) {
+
 		return _getLineGroupLoggerElement(null, element);
 	}
 
 	private static LoggerElement _getLineGroupLoggerElement(
-		String className, Element element) {
+		String className, PoshiElement element) {
 
 		_btnLinkCollapseId++;
 		_btnLinkVarId++;
@@ -597,7 +470,8 @@ public final class ScriptLoggerHandler {
 		return loggerElement.toString();
 	}
 
-	private static LoggerElement _getLoggerElementFromElement(Element element)
+	private static LoggerElement _getLoggerElementFromElement(
+			PoshiElement element)
 		throws Exception {
 
 		LoggerElement loggerElement = _getLineGroupLoggerElement(element);
@@ -605,7 +479,7 @@ public final class ScriptLoggerHandler {
 		loggerElement.addChildLoggerElement(
 			_getChildContainerLoggerElement(element));
 		loggerElement.addChildLoggerElement(
-			_getClosingLineContainerLoggerElement(element));
+			_getClosingLineContainerLoggerElement());
 
 		return loggerElement;
 	}
@@ -621,21 +495,23 @@ public final class ScriptLoggerHandler {
 		String namespace = PoshiRunnerStackTraceUtil.getCurrentNamespace(
 			namespacedClassCommandName);
 
-		Element commandElement = PoshiRunnerContext.getMacroCommandElement(
-			classCommandName, namespace);
+		PoshiElement commandElement =
+			(PoshiElement)PoshiRunnerContext.getMacroCommandElement(
+				classCommandName, namespace);
 
 		String className =
 			PoshiRunnerGetterUtil.getClassNameFromNamespacedClassCommandName(
 				namespacedClassCommandName);
 
-		Element rootElement = PoshiRunnerContext.getMacroRootElement(
-			className, namespace);
+		PoshiElement rootElement =
+			(PoshiElement)PoshiRunnerContext.getMacroRootElement(
+				className, namespace);
 
 		return _getChildContainerLoggerElement(commandElement, rootElement);
 	}
 
 	private static LoggerElement _getMacroExecuteLoggerElement(
-			Element executeElement, String macroType)
+			PoshiElement executeElement, String macroType)
 		throws Exception {
 
 		LoggerElement loggerElement = _getLineGroupLoggerElement(
@@ -651,43 +527,19 @@ public final class ScriptLoggerHandler {
 		PoshiRunnerStackTraceUtil.popStackTrace();
 
 		loggerElement.addChildLoggerElement(
-			_getClosingLineContainerLoggerElement(executeElement));
+			_getClosingLineContainerLoggerElement());
 
 		return loggerElement;
 	}
 
 	private static LoggerElement _getMethodExecuteLoggerElement(
-			Element executeElement)
+			PoshiElement executeElement)
 		throws Exception {
 
 		return _getLineGroupLoggerElement("method", executeElement);
 	}
 
-	private static LoggerElement _getParameterContainerLoggerElement(
-		Element element) {
-
-		LoggerElement loggerElement = new LoggerElement();
-
-		loggerElement.setAttribute("data-btnlinkid", "var-" + _btnLinkVarId);
-		loggerElement.setClassName(
-			"child-container collapse parameter-container");
-		loggerElement.setID(null);
-		loggerElement.setName("div");
-
-		List<Element> childElements = element.elements();
-
-		for (Element childElement : childElements) {
-			loggerElement.addChildLoggerElement(
-				_getLineNumberItem(
-					PoshiRunnerGetterUtil.getElementLineNumber(childElement)));
-			loggerElement.addChildLoggerElement(
-				_getLineContainerLoggerElement(childElement));
-		}
-
-		return loggerElement;
-	}
-
-	private static LoggerElement _getReturnLoggerElement(Element element) {
+	private static LoggerElement _getReturnLoggerElement(PoshiElement element) {
 		return _getLineGroupLoggerElement("return", element);
 	}
 
@@ -695,25 +547,29 @@ public final class ScriptLoggerHandler {
 			String namespacedClassCommandName)
 		throws Exception {
 
-		Element commandElement = PoshiRunnerContext.getTestCaseCommandElement(
-			namespacedClassCommandName,
-			PoshiRunnerGetterUtil.getNamespaceFromNamespacedClassCommandName(
-				namespacedClassCommandName));
+		PoshiElement commandElement =
+			(PoshiElement)PoshiRunnerContext.getTestCaseCommandElement(
+				namespacedClassCommandName,
+				PoshiRunnerGetterUtil.
+					getNamespaceFromNamespacedClassCommandName(
+						namespacedClassCommandName));
 
 		String className =
 			PoshiRunnerGetterUtil.getClassNameFromNamespacedClassCommandName(
 				namespacedClassCommandName);
 
-		Element rootElement = PoshiRunnerContext.getTestCaseRootElement(
-			className,
-			PoshiRunnerGetterUtil.getNamespaceFromNamespacedClassCommandName(
-				namespacedClassCommandName));
+		PoshiElement rootElement =
+			(PoshiElement)PoshiRunnerContext.getTestCaseRootElement(
+				className,
+				PoshiRunnerGetterUtil.
+					getNamespaceFromNamespacedClassCommandName(
+						namespacedClassCommandName));
 
 		return _getChildContainerLoggerElement(commandElement, rootElement);
 	}
 
 	private static LoggerElement _getTestCaseExecuteLoggerElement(
-			Element executeElement)
+			PoshiElement executeElement)
 		throws Exception {
 
 		LoggerElement loggerElement = _getLineGroupLoggerElement(
@@ -730,29 +586,30 @@ public final class ScriptLoggerHandler {
 		PoshiRunnerStackTraceUtil.popStackTrace();
 
 		loggerElement.addChildLoggerElement(
-			_getClosingLineContainerLoggerElement(executeElement));
+			_getClosingLineContainerLoggerElement());
 
 		return loggerElement;
 	}
 
-	private static LoggerElement _getVarLoggerElement(Element element) {
+	private static LoggerElement _getVarLoggerElement(PoshiElement element) {
 		return _getLineGroupLoggerElement("var", element);
 	}
 
-	private static LoggerElement _getWhileLoggerElement(Element element)
+	private static LoggerElement _getWhileLoggerElement(PoshiElement element)
 		throws Exception {
 
 		LoggerElement loggerElement = _getLineGroupLoggerElement(element);
 
 		loggerElement.addChildLoggerElement(
-			_getIfChildContainerLoggerElement(element));
+			_getChildContainerLoggerElement(element.poshiElement("then")));
+
 		loggerElement.addChildLoggerElement(
-			_getClosingLineContainerLoggerElement(element));
+			_getClosingLineContainerLoggerElement());
 
 		return loggerElement;
 	}
 
-	private static boolean _isExecutingFunction(Element element) {
+	private static boolean _isExecutingFunction(PoshiElement element) {
 		if (element.attributeValue("function") != null) {
 			return true;
 		}
@@ -760,7 +617,7 @@ public final class ScriptLoggerHandler {
 		return false;
 	}
 
-	private static boolean _isExecutingGroovyScript(Element element) {
+	private static boolean _isExecutingGroovyScript(PoshiElement element) {
 		if (element.attributeValue("groovy-script") != null) {
 			return true;
 		}
@@ -768,7 +625,7 @@ public final class ScriptLoggerHandler {
 		return false;
 	}
 
-	private static boolean _isExecutingMacro(Element element) {
+	private static boolean _isExecutingMacro(PoshiElement element) {
 		if ((element.attributeValue("macro") != null) ||
 			(element.attributeValue("macro-desktop") != null) ||
 			(element.attributeValue("macro-mobile") != null)) {
@@ -779,7 +636,7 @@ public final class ScriptLoggerHandler {
 		return false;
 	}
 
-	private static boolean _isExecutingMethod(Element element) {
+	private static boolean _isExecutingMethod(PoshiElement element) {
 		if (element.attributeValue("method") != null) {
 			return true;
 		}
@@ -787,7 +644,7 @@ public final class ScriptLoggerHandler {
 		return false;
 	}
 
-	private static boolean _isExecutingTestCase(Element element) {
+	private static boolean _isExecutingTestCase(PoshiElement element) {
 		if (element.attributeValue("test-case") != null) {
 			return true;
 		}
