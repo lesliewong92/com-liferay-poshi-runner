@@ -83,8 +83,9 @@ public final class CommandLoggerHandler {
 
 		_commandLogLoggerElement.addChildLoggerElement(_lineGroupLoggerElement);
 
-		LoggerElement xmlLoggerElement = XMLLoggerHandler.getXMLLoggerElement(
-			PoshiRunnerStackTraceUtil.getSimpleStackTrace());
+		LoggerElement xmlLoggerElement =
+			ScriptLoggerHandler.getScriptLoggerElement(
+				PoshiRunnerStackTraceUtil.getSimpleStackTrace());
 
 		_linkLoggerElements(xmlLoggerElement);
 	}
@@ -99,7 +100,7 @@ public final class CommandLoggerHandler {
 				_lineGroupLoggerElement);
 
 			LoggerElement xmlLoggerElement =
-				XMLLoggerHandler.getXMLLoggerElement(
+				ScriptLoggerHandler.getScriptLoggerElement(
 					PoshiRunnerStackTraceUtil.getSimpleStackTrace());
 
 			_linkLoggerElements(xmlLoggerElement);

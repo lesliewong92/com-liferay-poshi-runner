@@ -84,7 +84,7 @@ public final class LoggerUtil {
 				CommandLoggerHandler.getCommandLogText());
 			indexHTMLContent = indexHTMLContent.replace(
 				"<ul class=\"xml-log-container\" id=\"xmlLogContainer\"></ul>",
-				XMLLoggerHandler.getXMLLogText());
+				ScriptLoggerHandler.getScriptLogText());
 
 			if (!PropsValues.TEST_RUN_LOCALLY) {
 				indexHTMLContent = StringUtil.replace(
