@@ -373,6 +373,8 @@ public final class ScriptLoggerHandler {
 		ifLoggerElement.addChildLoggerElement(
 			_getClosingLineContainerLoggerElement());
 
+		loggerElement.addChildLoggerElement(ifLoggerElement);
+
 		List<PoshiElement> elseIfElements = element.poshiElements("elseif");
 
 		for (PoshiElement elseIfElement : elseIfElements) {
