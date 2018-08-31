@@ -130,8 +130,6 @@ public final class ScriptLoggerHandler {
 				childContainerLoggerElement);
 
 			_scriptLogLoggerElement.addChildLoggerElement(headerLoggerElement);
-
-			System.out.println(getScriptLogText());
 		}
 		catch (Throwable t) {
 			throw new PoshiRunnerLoggerException(t.getMessage(), t);
