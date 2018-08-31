@@ -48,11 +48,11 @@ public final class CommandLoggerHandler {
 
 			_failLineGroupLoggerElement(_lineGroupLoggerElement);
 
-			LoggerElement xmlLoggerElement =
-				XMLLoggerHandler.getXMLLoggerElement(
+			LoggerElement scriptLoggerElement =
+				ScriptLoggerHandler.getScriptLoggerElement(
 					PoshiRunnerStackTraceUtil.getSimpleStackTrace());
 
-			_updateStatus(xmlLoggerElement, "fail");
+			_updateStatus(scriptLoggerElement, "fail");
 		}
 		catch (Throwable t) {
 			throw new PoshiRunnerLoggerException(t.getMessage(), t);
@@ -83,11 +83,11 @@ public final class CommandLoggerHandler {
 
 		_commandLogLoggerElement.addChildLoggerElement(_lineGroupLoggerElement);
 
-		LoggerElement xmlLoggerElement =
+		LoggerElement scriptLoggerElement =
 			ScriptLoggerHandler.getScriptLoggerElement(
 				PoshiRunnerStackTraceUtil.getSimpleStackTrace());
 
-		_linkLoggerElements(xmlLoggerElement);
+		_linkLoggerElements(scriptLoggerElement);
 	}
 
 	public static void logMessage(Element element)
@@ -99,13 +99,13 @@ public final class CommandLoggerHandler {
 			_commandLogLoggerElement.addChildLoggerElement(
 				_lineGroupLoggerElement);
 
-			LoggerElement xmlLoggerElement =
+			LoggerElement scriptLoggerElement =
 				ScriptLoggerHandler.getScriptLoggerElement(
 					PoshiRunnerStackTraceUtil.getSimpleStackTrace());
 
-			_linkLoggerElements(xmlLoggerElement);
+			_linkLoggerElements(scriptLoggerElement);
 
-			_updateStatus(xmlLoggerElement, "pass");
+			_updateStatus(scriptLoggerElement, "pass");
 		}
 		catch (Throwable t) {
 			throw new PoshiRunnerLoggerException(t.getMessage(), t);
@@ -139,10 +139,11 @@ public final class CommandLoggerHandler {
 
 		_commandElement = null;
 
-		LoggerElement xmlLoggerElement = XMLLoggerHandler.getXMLLoggerElement(
-			PoshiRunnerStackTraceUtil.getSimpleStackTrace());
+		LoggerElement scriptLoggerElement =
+			ScriptLoggerHandler.getScriptLoggerElement(
+				PoshiRunnerStackTraceUtil.getSimpleStackTrace());
 
-		_updateStatus(xmlLoggerElement, "pass");
+		_updateStatus(scriptLoggerElement, "pass");
 	}
 
 	public static void startCommand(Element element)
@@ -162,13 +163,13 @@ public final class CommandLoggerHandler {
 			_commandLogLoggerElement.addChildLoggerElement(
 				_lineGroupLoggerElement);
 
-			LoggerElement xmlLoggerElement =
-				XMLLoggerHandler.getXMLLoggerElement(
+			LoggerElement scriptLoggerElement =
+				ScriptLoggerHandler.getScriptLoggerElement(
 					PoshiRunnerStackTraceUtil.getSimpleStackTrace());
 
-			_linkLoggerElements(xmlLoggerElement);
+			_linkLoggerElements(scriptLoggerElement);
 
-			_updateStatus(xmlLoggerElement, "pending");
+			_updateStatus(scriptLoggerElement, "pending");
 		}
 		catch (Throwable t) {
 			throw new PoshiRunnerLoggerException(t.getMessage(), t);
@@ -199,11 +200,11 @@ public final class CommandLoggerHandler {
 
 			_warningLineGroupLoggerElement(_lineGroupLoggerElement);
 
-			LoggerElement xmlLoggerElement =
-				XMLLoggerHandler.getXMLLoggerElement(
+			LoggerElement scriptLoggerElement =
+				ScriptLoggerHandler.getScriptLoggerElement(
 					PoshiRunnerStackTraceUtil.getSimpleStackTrace());
 
-			_updateStatus(xmlLoggerElement, "warning");
+			_updateStatus(scriptLoggerElement, "warning");
 		}
 		catch (Throwable t) {
 			throw new PoshiRunnerLoggerException(t.getMessage(), t);
@@ -611,8 +612,8 @@ public final class CommandLoggerHandler {
 			StringUtil.toLowerCase(element.getName()), "fail");
 	}
 
-	private static void _linkLoggerElements(LoggerElement xmlLoggerElement) {
-		String functionLinkID = xmlLoggerElement.getAttributeValue(
+	private static void _linkLoggerElements(LoggerElement scriptLoggerElement) {
+		String functionLinkID = scriptLoggerElement.getAttributeValue(
 			"data-functionlinkid");
 
 		if (functionLinkID != null) {
@@ -620,7 +621,7 @@ public final class CommandLoggerHandler {
 				functionLinkID.substring(15));
 		}
 
-		xmlLoggerElement.setAttribute(
+		scriptLoggerElement.setAttribute(
 			"data-functionlinkid", "functionLinkId-" + _functionLinkId);
 
 		_lineGroupLoggerElement.setAttribute(
