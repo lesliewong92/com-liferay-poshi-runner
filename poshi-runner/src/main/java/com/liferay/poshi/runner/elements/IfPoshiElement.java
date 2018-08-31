@@ -142,7 +142,7 @@ public class IfPoshiElement extends PoshiElement {
 					conditionName);
 
 				sb.append(" (");
-				sb.append(poshiElement.toPoshiScript());
+				sb.append(poshiElement.getPoshiScript());
 				sb.append(")");
 
 				break;
