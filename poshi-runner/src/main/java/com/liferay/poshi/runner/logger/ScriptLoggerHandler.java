@@ -145,9 +145,7 @@ public final class ScriptLoggerHandler {
 	}
 
 	public static void updateStatus(Element element, String status) {
-		PoshiElement poshiElement = (PoshiElement)element;
-
-		PoshiRunnerStackTraceUtil.setCurrentElement(poshiElement);
+		PoshiRunnerStackTraceUtil.setCurrentElement(element);
 
 		String stackTrace = PoshiRunnerStackTraceUtil.getSimpleStackTrace();
 
