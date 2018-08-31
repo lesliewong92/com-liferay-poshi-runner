@@ -53,7 +53,7 @@ public class ForPoshiElement extends PoshiElement {
 
 	@Override
 	public String getLogStatement() {
-		return getBlockName();
+		return getBlockName(getPoshiScript());
 	}
 
 	@Override
