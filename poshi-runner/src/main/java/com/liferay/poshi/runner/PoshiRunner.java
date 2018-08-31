@@ -256,12 +256,12 @@ public class PoshiRunner {
 			PoshiRunnerStackTraceUtil.startStackTrace(
 				namespacedClassCommandName, "test-case");
 
-			XMLLoggerHandler.updateStatus(commandElement, "pending");
+			ScriptLoggerHandler.updateStatus(commandElement, "pending");
 
 			PoshiRunnerExecutor.runTestCaseCommandElement(
 				commandElement, namespacedClassCommandName);
 
-			XMLLoggerHandler.updateStatus(commandElement, "pass");
+			ScriptLoggerHandler.updateStatus(commandElement, "pass");
 
 			PoshiRunnerStackTraceUtil.emptyStackTrace();
 		}

@@ -23,6 +23,8 @@ import com.liferay.poshi.runner.util.PropsValues;
 import com.liferay.poshi.runner.util.StringUtil;
 import com.liferay.poshi.runner.util.Validator;
 
+import org.dom4j.Element;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,10 +38,10 @@ public final class ScriptLoggerHandler {
 		throws PoshiRunnerLoggerException {
 
 		try {
-			_xmlLogLoggerElement = new LoggerElement("xmlLogContainer");
+			_scriptLogLoggerElement = new LoggerElement("xmlLogContainer");
 
-			_xmlLogLoggerElement.setClassName("xml-log-container");
-			_xmlLogLoggerElement.setName("ul");
+			_scriptLogLoggerElement.setClassName("xml-log-container");
+			_scriptLogLoggerElement.setName("ul");
 
 			LoggerElement headerLoggerElement = new LoggerElement();
 
@@ -127,25 +129,27 @@ public final class ScriptLoggerHandler {
 			headerLoggerElement.addChildLoggerElement(
 				childContainerLoggerElement);
 
-			_xmlLogLoggerElement.addChildLoggerElement(headerLoggerElement);
+			_scriptLogLoggerElement.addChildLoggerElement(headerLoggerElement);
 
-			System.out.println(getXMLLogText());
+			System.out.println(getScriptLogText());
 		}
 		catch (Throwable t) {
 			throw new PoshiRunnerLoggerException(t.getMessage(), t);
 		}
 	}
 
-	public static LoggerElement getXMLLoggerElement(String stackTrace) {
+	public static LoggerElement getScriptLoggerElement(String stackTrace) {
 		return _loggerElements.get(stackTrace);
 	}
 
-	public static String getXMLLogText() {
-		return _xmlLogLoggerElement.toString();
+	public static String getScriptLogText() {
+		return _scriptLogLoggerElement.toString();
 	}
 
-	public static void updateStatus(PoshiElement element, String status) {
-		PoshiRunnerStackTraceUtil.setCurrentElement(element);
+	public static void updateStatus(Element element, String status) {
+		PoshiElement poshiElement = (PoshiElement)element;
+
+		PoshiRunnerStackTraceUtil.setCurrentElement(poshiElement);
 
 		String stackTrace = PoshiRunnerStackTraceUtil.getSimpleStackTrace();
 
@@ -153,7 +157,7 @@ public final class ScriptLoggerHandler {
 			return;
 		}
 
-		LoggerElement loggerElement = getXMLLoggerElement(stackTrace);
+		LoggerElement loggerElement = getScriptLoggerElement(stackTrace);
 
 		loggerElement.setAttribute("data-status01", status);
 	}
@@ -665,6 +669,6 @@ public final class ScriptLoggerHandler {
 	private static int _btnLinkVarId;
 	private static final Map<String, LoggerElement> _loggerElements =
 		new HashMap<>();
-	private static LoggerElement _xmlLogLoggerElement;
+	private static LoggerElement _scriptLogLoggerElement;
 
 }
