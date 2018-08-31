@@ -20,6 +20,7 @@ import com.liferay.poshi.runner.PoshiRunnerStackTraceUtil;
 import com.liferay.poshi.runner.elements.PoshiElement;
 import com.liferay.poshi.runner.exception.PoshiRunnerLoggerException;
 import com.liferay.poshi.runner.util.PropsValues;
+import com.liferay.poshi.runner.util.StringUtil;
 import com.liferay.poshi.runner.util.Validator;
 
 import java.util.HashMap;
@@ -404,10 +405,18 @@ public final class ScriptLoggerHandler {
 				"onmouseover", "macroHover(this, true)");
 		}
 
-		String logStatement = element.getLogStatement();
+		String logStatement = StringUtil.trim(element.getLogStatement());
+
+		String name = element.getName();
+
+		List<PoshiElement> elements = element.poshiElements();
+
+		if (!name.equals("execute") && !elements.isEmpty()) {
+			logStatement += " {";
+		}
 
 		lineContainerLoggerElement.setText(
-			_getLineItemText("name", logStatement.trim()));
+			_getLineItemText("name", logStatement));
 
 		return lineContainerLoggerElement;
 	}
