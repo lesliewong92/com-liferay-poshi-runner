@@ -40,6 +40,12 @@ public interface PoshiNode<A extends Node, B extends PoshiNode<A, B>>
 			return 1;
 		}
 
+		if ((this instanceof ThenPoshiElement) &&
+			!(this instanceof ElsePoshiElement)) {
+
+			return parentPoshiElement.getPoshiScriptLineNumber();
+		}
+
 		List<PoshiNode> poshiNodes = parentPoshiElement.getPoshiNodes();
 
 		PoshiNode previousPoshiNode = null;
@@ -74,9 +80,9 @@ public interface PoshiNode<A extends Node, B extends PoshiNode<A, B>>
 		int line = parentPoshiElement.getPoshiScriptLineNumber() + 1;
 
 		if ((parentPoshiElement instanceof AndPoshiElement) ||
+			(parentPoshiElement instanceof IfPoshiElement) ||
 			(parentPoshiElement instanceof NotPoshiElement) ||
-			(parentPoshiElement instanceof OrPoshiElement) ||
-			(parentPoshiElement instanceof ThenPoshiElement)) {
+			(parentPoshiElement instanceof OrPoshiElement)) {
 
 			line--;
 		}
