@@ -16,8 +16,8 @@ package com.liferay.poshi.runner;
 
 import com.liferay.poshi.runner.exception.PoshiRunnerWarningException;
 import com.liferay.poshi.runner.logger.CommandLoggerHandler;
-import com.liferay.poshi.runner.logger.SummaryLoggerHandler;
 import com.liferay.poshi.runner.logger.ScriptLoggerHandler;
+import com.liferay.poshi.runner.logger.SummaryLoggerHandler;
 import com.liferay.poshi.runner.selenium.LiferaySelenium;
 import com.liferay.poshi.runner.selenium.LiferaySeleniumHelper;
 import com.liferay.poshi.runner.selenium.SeleniumUtil;
@@ -643,11 +643,7 @@ public class PoshiRunnerExecutor {
 
 		boolean condition = evaluateConditionalElement(ifConditionElement);
 
-		boolean conditionRun = false;
-
 		if (condition) {
-			conditionRun = true;
-
 			Element ifThenElement = element.element("then");
 
 			PoshiRunnerStackTraceUtil.setCurrentElement(ifThenElement);
@@ -655,8 +651,15 @@ public class PoshiRunnerExecutor {
 			parseElement(ifThenElement);
 
 			// ScriptLoggerHandler.updateStatus(ifThenElement, "pass");
+
+			ScriptLoggerHandler.updateStatus(element, "pass");
+
+			return;
 		}
-		else if (element.element("elseif") != null) {
+
+		ScriptLoggerHandler.updateStatus(element, "conditional-fail");
+
+		if (element.element("elseif") != null) {
 			List<Element> elseIfElements = element.elements("elseif");
 
 			for (Element elseIfElement : elseIfElements) {
@@ -669,31 +672,27 @@ public class PoshiRunnerExecutor {
 				condition = evaluateConditionalElement(elseIfConditionElement);
 
 				if (condition) {
-					conditionRun = true;
-
 					Element elseIfThenElement = elseIfElement.element("then");
 
 					PoshiRunnerStackTraceUtil.setCurrentElement(
 						elseIfThenElement);
 
 					parseElement(elseIfThenElement);
-
-					// ScriptLoggerHandler.updateStatus(elseIfThenElement, "pass");
-
+/*
+					ScriptLoggerHandler.updateStatus(elseIfThenElement, "pass");
+ */
 					ScriptLoggerHandler.updateStatus(elseIfElement, "pass");
 
-					break;
+					return;
 				}
-				else {
-					ScriptLoggerHandler.updateStatus(
-						elseIfElement, "conditional-fail");
-				}
+
+				ScriptLoggerHandler.updateStatus(
+					elseIfElement, "conditional-fail");
+
 			}
 		}
 
-		if ((element.element("else") != null) && !conditionRun) {
-			conditionRun = true;
-
+		if (element.element("else") != null) {
 			Element elseElement = element.element("else");
 
 			PoshiRunnerStackTraceUtil.setCurrentElement(elseElement);
@@ -701,13 +700,6 @@ public class PoshiRunnerExecutor {
 			parseElement(elseElement);
 
 			ScriptLoggerHandler.updateStatus(elseElement, "pass");
-		}
-
-		if (conditionRun) {
-			ScriptLoggerHandler.updateStatus(element, "pass");
-		}
-		else {
-			ScriptLoggerHandler.updateStatus(element, "conditional-fail");
 		}
 	}
 
@@ -1155,6 +1147,7 @@ public class PoshiRunnerExecutor {
 			parseElement(thenElement);
 
 			// ScriptLoggerHandler.updateStatus(thenElement, "pass");
+
 		}
 
 		if (conditionRun) {

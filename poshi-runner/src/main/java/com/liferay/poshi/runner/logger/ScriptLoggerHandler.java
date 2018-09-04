@@ -23,11 +23,11 @@ import com.liferay.poshi.runner.util.PropsValues;
 import com.liferay.poshi.runner.util.StringUtil;
 import com.liferay.poshi.runner.util.Validator;
 
-import org.dom4j.Element;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.dom4j.Element;
 
 /**
  * @author Michael Hashimoto
@@ -170,7 +170,7 @@ public final class ScriptLoggerHandler {
 
 		sb.append(
 			_getLineNumberItemText(
-				PoshiRunnerGetterUtil.getElementLineNumber(element)));
+				PoshiRunnerGetterUtil.getLineNumber(element)));
 
 		List<PoshiElement> childElements = element.poshiElements();
 
@@ -407,7 +407,7 @@ public final class ScriptLoggerHandler {
 				"onmouseover", "macroHover(this, true)");
 		}
 
-		String logStatement = StringUtil.trim(element.getLogStatement());
+		String logStatement = StringUtil.trim(element.getPoshiLogDescriptor());
 
 		String name = element.getName();
 
