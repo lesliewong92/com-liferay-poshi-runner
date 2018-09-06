@@ -84,6 +84,22 @@ public abstract class PoshiElement
 		return matcher.find();
 	}
 
+	public PoshiElement poshiElement(String elementName) {
+		return (PoshiElement)element(elementName);
+	}
+
+	public List<PoshiElementAttribute> poshiElementAttributes() {
+		return toPoshiElementAttributes(attributes());
+	}
+
+	public List<PoshiElement> poshiElements() {
+		return toPoshiElements(elements());
+	}
+
+	public List<PoshiElement> poshiElements(String elementName) {
+		return toPoshiElements(elements(elementName));
+	}
+
 	@Override
 	public boolean remove(Attribute attribute) {
 		if (attribute instanceof PoshiElementAttribute) {
