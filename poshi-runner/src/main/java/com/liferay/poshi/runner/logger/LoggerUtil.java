@@ -16,12 +16,10 @@ package com.liferay.poshi.runner.logger;
 
 import com.liferay.poshi.runner.PoshiRunnerContext;
 import com.liferay.poshi.runner.PoshiRunnerGetterUtil;
-import com.liferay.poshi.runner.exception.PoshiRunnerLoggerException;
-import com.liferay.poshi.runner.util.FileUtil;
-import com.liferay.poshi.runner.util.PropsValues;
 import com.liferay.poshi.runner.util.StringUtil;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -29,86 +27,6 @@ import java.io.InputStreamReader;
  * @author Michael Hashimoto
  */
 public final class LoggerUtil {
-
-	public static void createSummary() throws PoshiRunnerLoggerException {
-		try {
-			FileUtil.write(
-				_getSummaryLogFilePath(), SummaryLoggerHandler.getSummary());
-		}
-		catch (Throwable t) {
-			throw new PoshiRunnerLoggerException(t.getMessage(), t);
-		}
-	}
-
-	public static void startLogger() throws Exception {
-		CommandLoggerHandler.startRunning();
-
-		SummaryLoggerHandler.startRunning();
-	}
-
-	public static void stopLogger() throws PoshiRunnerLoggerException {
-		try {
-			CommandLoggerHandler.stopRunning();
-
-			SummaryLoggerHandler.stopRunning();
-
-			if (!PropsValues.SELENIUM_LOGGER_ENABLED) {
-				String mainCSSContent = _readResource(
-					"META-INF/resources/css/main.css");
-
-				FileUtil.write(
-					_CURRENT_DIR_NAME + "/test-results/css/main.css",
-					mainCSSContent);
-
-				String componentJSContent = _readResource(
-					"META-INF/resources/js/component.js");
-
-				FileUtil.write(
-					_CURRENT_DIR_NAME + "/test-results/js/component.js",
-					componentJSContent);
-
-				String mainJSContent = _readResource(
-					"META-INF/resources/js/main.js");
-
-				FileUtil.write(
-					_CURRENT_DIR_NAME + "/test-results/js/main.js",
-					mainJSContent);
-			}
-
-			String indexHTMLContent = _readResource(
-				"META-INF/resources/html/index.html");
-
-			indexHTMLContent = indexHTMLContent.replace(
-				"<ul class=\"command-log\" data-logid=\"01\" " +
-					"id=\"commandLog\"></ul>",
-				CommandLoggerHandler.getCommandLogText());
-			indexHTMLContent = indexHTMLContent.replace(
-				"<ul class=\"syntax-log-container\" id=\"syntaxLogContainer\"" +
-					"></ul>",
-				XMLLoggerHandler.getXMLLogText());
-
-			if (!PropsValues.TEST_RUN_LOCALLY) {
-				indexHTMLContent = StringUtil.replace(
-					indexHTMLContent, "<link href=\"../css/main.css\"",
-					"<link href=\"" + PropsValues.LOGGER_RESOURCES_URL +
-						"/css/main.css\"");
-				indexHTMLContent = StringUtil.replace(
-					indexHTMLContent,
-					"<script defer src=\"../js/component.js\"",
-					"<script defer src=\"" + PropsValues.LOGGER_RESOURCES_URL +
-						"/js/component.js\"");
-				indexHTMLContent = StringUtil.replace(
-					indexHTMLContent, "<script defer src=\"../js/main.js\"",
-					"<script defer src=\"" + PropsValues.LOGGER_RESOURCES_URL +
-						"/js/main.js\"");
-			}
-
-			FileUtil.write(_getHtmlFilePath(), indexHTMLContent);
-		}
-		catch (Throwable t) {
-			throw new PoshiRunnerLoggerException(t.getMessage(), t);
-		}
-	}
 
 	private static String _getHtmlFilePath() {
 		StringBuilder sb = new StringBuilder();
@@ -138,7 +56,7 @@ public final class LoggerUtil {
 		return sb.toString();
 	}
 
-	private static String _readResource(String path) throws Exception {
+	private static String _readResource(String path) throws IOException {
 		StringBuilder sb = new StringBuilder();
 
 		ClassLoader classLoader = LoggerUtil.class.getClassLoader();
