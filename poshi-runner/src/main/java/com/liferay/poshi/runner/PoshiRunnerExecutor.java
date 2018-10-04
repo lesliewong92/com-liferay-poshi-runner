@@ -1248,7 +1248,7 @@ public class PoshiRunnerExecutor {
 			return _getWarningFromThrowable(cause);
 		}
 
-		return null;
+		return "";
 	}
 
 	private static final Pattern _locatorKeyPattern = Pattern.compile(
