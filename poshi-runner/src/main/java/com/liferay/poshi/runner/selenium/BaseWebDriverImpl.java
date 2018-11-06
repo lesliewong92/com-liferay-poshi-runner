@@ -2351,7 +2351,7 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 		else if (locator.equals("relative=top")) {
 			_frameWebElements = new Stack<>();
 
-			targetLocator.window(_defaultWindowHandle);
+			switchTo().defaultContent();
 		}
 		else {
 			_frameWebElements.push(getWebElement(locator));
