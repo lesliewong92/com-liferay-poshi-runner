@@ -113,16 +113,16 @@ public class FileUtil {
 			return filePaths;
 		}
 
-		Path path = fileSystem.getPath(baseDirName);
+		Path fsPath = fileSystem.getPath(baseDirName);
 
-		if (!Files.exists(path)) {
+		if (!Files.exists(fsPath)) {
 			System.out.println("Directory " + baseDirName + " does not exist.");
 
 			return filePaths;
 		}
 
 		Files.walkFileTree(
-			path,
+			fsPath,
 			new SimpleFileVisitor<Path>() {
 
 				@Override
