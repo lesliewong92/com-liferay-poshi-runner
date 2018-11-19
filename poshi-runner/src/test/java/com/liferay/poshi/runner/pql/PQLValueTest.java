@@ -29,7 +29,7 @@ public class PQLValueTest extends TestCase {
 
 	@Test
 	public void testGetPQLResult() throws Exception {
-		_validateGetPQLResult("false", Boolean.FALSE);
+		_validateGetPQLResult("false", Boolean.TRUE);
 		_validateGetPQLResult("'false'", Boolean.FALSE);
 		_validateGetPQLResult("\"false\"", Boolean.FALSE);
 		_validateGetPQLResult("true", Boolean.TRUE);
